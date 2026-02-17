@@ -15,32 +15,32 @@ export async function PATCH(
 
         const { id } = await params;
         const body = await request.json();
-        const { isActive, name, slug, description, image } = body;
+        const { name, slug, description, image, isActive } = body;
 
         // Build update data dynamically — only update provided fields
         const data: Record<string, unknown> = {};
-        if (typeof isActive === "boolean") data.isActive = isActive;
         if (typeof name === "string") data.name = name;
         if (typeof slug === "string") data.slug = slug;
         if (typeof description === "string") data.description = description;
         if (typeof image === "string") data.image = image;
+        if (typeof isActive === "boolean") data.isActive = isActive;
 
-        const occasion = await prisma.occasion.update({
+        const category = await prisma.category.update({
             where: { id },
             data,
         });
 
-        return NextResponse.json({ occasion });
+        return NextResponse.json({ category });
     } catch (error) {
-        console.error("Error updating occasion:", error);
+        console.error("Error updating category:", error);
         if ((error as any).code === "P2002") {
             return NextResponse.json(
-                { error: "An occasion with this slug already exists" },
+                { error: "A category with this slug already exists" },
                 { status: 409 }
             );
         }
         return NextResponse.json(
-            { error: "Failed to update occasion" },
+            { error: "Failed to update category" },
             { status: 500 }
         );
     }
@@ -58,15 +58,15 @@ export async function DELETE(
 
         const { id } = await params;
 
-        await prisma.occasion.delete({
+        await prisma.category.delete({
             where: { id },
         });
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Error deleting occasion:", error);
+        console.error("Error deleting category:", error);
         return NextResponse.json(
-            { error: "Failed to delete occasion" },
+            { error: "Failed to delete category" },
             { status: 500 }
         );
     }

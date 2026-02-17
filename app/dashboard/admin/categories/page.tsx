@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { Edit, Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Category {
     id: string;
@@ -20,13 +22,24 @@ export default function AdminCategories() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
-    // Form State
+    // Create Form State
     const [formData, setFormData] = useState({
         name: "",
         slug: "",
         image: "",
         description: "",
     });
+
+    // Edit State
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [editForm, setEditForm] = useState({
+        name: "",
+        slug: "",
+        image: "",
+        description: "",
+    });
+    const [editSubmitting, setEditSubmitting] = useState(false);
+    const [editError, setEditError] = useState("");
 
     useEffect(() => {
         if (status === "loading") return;
@@ -50,14 +63,17 @@ export default function AdminCategories() {
         }
     };
 
+    const generateSlug = (name: string) => {
+        return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
-            // Auto-generate slug from name if slug is empty or currently matches sluggified name
-            slug: name === "name" && (prev.slug === "" || prev.slug === prev.name.toLowerCase().replace(/\s+/g, '-'))
-                ? value.toLowerCase().replace(/\s+/g, '-')
+            slug: name === "name" && (prev.slug === "" || prev.slug === generateSlug(prev.name))
+                ? generateSlug(value)
                 : (name === "slug" ? value : prev.slug)
         }));
     };
@@ -74,19 +90,83 @@ export default function AdminCategories() {
             });
 
             if (res.ok) {
-                // Reset form and refetch
                 setFormData({ name: "", slug: "", image: "", description: "" });
                 fetchCategories();
-                alert("Category created successfully!");
+                toast.success("Category created successfully!");
             } else {
                 const error = await res.json();
-                alert(`Error: ${error.error || "Failed to create category"}`);
+                toast.error(error.error || "Failed to create category");
             }
         } catch (error) {
             console.error("Error creating category:", error);
-            alert("An unexpected error occurred.");
+            toast.error("An unexpected error occurred.");
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    // Edit handlers
+    const openEditModal = (cat: Category) => {
+        setEditingCategory(cat);
+        setEditForm({
+            name: cat.name,
+            slug: cat.slug,
+            image: cat.image || "",
+            description: cat.description || "",
+        });
+        setEditError("");
+    };
+
+    const handleEditNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const name = e.target.value;
+        setEditForm((prev) => ({ ...prev, name, slug: generateSlug(name) }));
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingCategory) return;
+        setEditSubmitting(true);
+        setEditError("");
+
+        try {
+            const res = await fetch(`/api/categories/${editingCategory.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(editForm),
+            });
+
+            if (res.ok) {
+                setEditingCategory(null);
+                fetchCategories();
+                toast.success("Category updated successfully!");
+            } else {
+                const error = await res.json();
+                setEditError(error.error || "Failed to update category");
+            }
+        } catch (error) {
+            console.error("Error updating category:", error);
+            setEditError("An unexpected error occurred.");
+        } finally {
+            setEditSubmitting(false);
+        }
+    };
+
+    // Delete handler
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this category?")) return;
+
+        try {
+            const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+            if (res.ok) {
+                fetchCategories();
+                toast.success("Category deleted");
+            } else {
+                const error = await res.json();
+                toast.error(error.error || "Failed to delete category");
+            }
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            toast.error("An unexpected error occurred.");
         }
     };
 
@@ -122,7 +202,7 @@ export default function AdminCategories() {
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-gray-900"
                                     placeholder="e.g. Wedding Dresses"
                                 />
                             </div>
@@ -148,7 +228,7 @@ export default function AdminCategories() {
                                     name="image"
                                     value={formData.image}
                                     onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-gray-900"
                                     placeholder="https://example.com/image.jpg"
                                 />
                             </div>
@@ -160,7 +240,7 @@ export default function AdminCategories() {
                                     value={formData.description}
                                     onChange={handleInputChange}
                                     rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-gray-900"
                                     placeholder="Optional description..."
                                 />
                             </div>
@@ -204,6 +284,7 @@ export default function AdminCategories() {
                                             <th className="px-6 py-3">Name</th>
                                             <th className="px-6 py-3">Slug</th>
                                             <th className="px-6 py-3 text-center">Products</th>
+                                            <th className="px-6 py-3 text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
@@ -232,6 +313,24 @@ export default function AdminCategories() {
                                                 <td className="px-6 py-3 text-sm text-gray-500 text-center">
                                                     {category.productCount}
                                                 </td>
+                                                <td className="px-6 py-3 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => openEditModal(category)}
+                                                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                                                            title="Edit category"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(category.id)}
+                                                            className="text-gray-400 hover:text-rose-600 transition-colors"
+                                                            title="Delete category"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -242,6 +341,83 @@ export default function AdminCategories() {
                 </div>
 
             </div>
+
+            {/* Edit Modal */}
+            {editingCategory && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="p-6 border-b border-gray-100">
+                            <h2 className="text-lg font-bold text-gray-900">Edit Category</h2>
+                            <p className="text-sm text-gray-500 mt-1">Editing &ldquo;{editingCategory.name}&rdquo;</p>
+                        </div>
+                        <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+                            {editError && (
+                                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100">
+                                    {editError}
+                                </div>
+                            )}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={editForm.name}
+                                    onChange={handleEditNameChange}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-gray-900 bg-white placeholder-gray-400"
+                                    placeholder="e.g. Wedding Dresses"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={editForm.slug}
+                                    onChange={(e) => setEditForm({ ...editForm, slug: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-gray-50 text-gray-900"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    value={editForm.description}
+                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 resize-none h-20 text-gray-900 bg-white placeholder-gray-400"
+                                    placeholder="Short description..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                                <input
+                                    type="url"
+                                    value={editForm.image}
+                                    onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-gray-900 bg-white placeholder-gray-400"
+                                    placeholder="https://..."
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingCategory(null)}
+                                    className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={editSubmitting}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                    {editSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
