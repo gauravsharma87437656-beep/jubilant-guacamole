@@ -92,8 +92,9 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { error: "Failed to fetch products", details: errorMessage },
       { status: 500 }
     );
   }
