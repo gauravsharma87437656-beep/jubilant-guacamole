@@ -186,7 +186,7 @@ export function DropsSection() {
                                         href={`/product/${product.slug || product.id}`}
                                         key={`${product.id}-${index}`}
                                         prefetch={false}
-                                        className="flex-[0_0_70%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] min-w-0 relative group cursor-pointer px-2"
+                                        className="flex-[0_0_70%] md:flex-[0_0_40%] lg:flex-[0_0_25%] min-w-0 relative group cursor-pointer px-2 md:px-6"
                                         style={{
                                             perspective: '1000px',
                                             zIndex: slideStyle.zIndex
