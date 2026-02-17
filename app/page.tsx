@@ -1,65 +1,301 @@
+"use client";
+
+import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
+import { HeroCarousel } from "@/components/home/hero-carousel";
+import { DropsSection } from "@/components/home/drops-section";
+import { Testimonials } from "@/components/home/testimonials";
+import { FeaturedBrands } from "@/components/home/featured-brands";
+import useEmblaCarousel from "embla-carousel-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
-export default function Home() {
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+  productCount: number;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  images: string[];
+  dailyPrice: number;
+  rating: number;
+  reviewCount: number;
+  category: {
+    name: string;
+  };
+  vendor: {
+    businessName: string;
+  };
+}
+
+export default function HomePage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      // Fetch categories
+      const catRes = await fetch("/api/categories");
+      if (catRes.ok) {
+        const catData = await catRes.json();
+        setCategories(catData.categories?.slice(0, 4) || []);
+      }
+
+      // Fetch featured products
+      const prodRes = await fetch("/api/products?featured=true&limit=8");
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        setProducts(prodData.products || []);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter products by selected category
+  const filteredProducts = selectedCategory
+    ? products.filter((p) => p.category?.name?.toLowerCase() === selectedCategory.toLowerCase())
+    : products;
+
+  const [bestsellerRef, bestsellerApi] = useEmblaCarousel({
+    align: 'start',
+    containScroll: 'trimSnaps',
+    dragFree: true
+  });
+
+  const scrollPrev = useCallback(() => bestsellerApi && bestsellerApi.scrollPrev(), [bestsellerApi]);
+  const scrollNext = useCallback(() => bestsellerApi && bestsellerApi.scrollNext(), [bestsellerApi]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-white text-gray-900 font-sans">
+
+      {/* Hero Section with Carousel */}
+      <HeroCarousel />
+
+      {/* Drops Section  */}
+      <DropsSection />
+
+      {/* Featured Brands */}
+      <FeaturedBrands />
+
+
+      {/* Best Deals / Featured Section */}
+      <section className="py-12 md:py-16 bg-white" aria-labelledby="best-deals-title">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex justify-between items-center mb-10">
+            <h3 id="best-deals-title" className="text-2xl md:text-3xl font-bold text-primary">Best Deals for Happy Occasions</h3>
+            <div className="hidden md:flex gap-2" role="navigation" aria-label="Promo navigation">
+              <button className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition-colors" aria-label="Previous promo">
+                <span className="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+              </button>
+              <button className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition-colors" aria-label="Next promo">
+                <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Promo Card 1 */}
+            <article className="relative overflow-hidden rounded-2xl aspect-[1.8/1] group shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600 group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/60 to-transparent flex flex-col justify-center p-8">
+                <div className="bg-white/30 backdrop-blur-sm self-start px-3 py-1 rounded text-xs font-bold uppercase text-white mb-2">Discount</div>
+                <h4 className="text-4xl font-black text-white mb-1">35% <span className="text-xl">OFF</span></h4>
+                <p className="text-white font-bold mb-4">Premium Lehengas</p>
+              </div>
+            </article>
+            {/* Promo Card 2 */}
+            <article className="relative overflow-hidden rounded-2xl aspect-[1.8/1] group shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-primary to-emerald-800 group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/70 to-transparent flex flex-col justify-center p-8">
+                <h4 className="text-4xl font-black text-white mb-1">50% <span className="text-xl">OFF</span></h4>
+                <p className="text-white font-bold mb-4">Sherwanis & Suits</p>
+                <Link href="/categories" className="bg-secondary text-white font-bold px-5 py-2 rounded-full w-fit hover:bg-secondary/90 transition-colors inline-block">
+                  Check Now
+                </Link>
+              </div>
+            </article>
+            {/* Promo Card 3 */}
+            <article className="relative overflow-hidden rounded-2xl aspect-[1.8/1] group shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-600/60 to-transparent flex flex-col justify-center p-8">
+                <h4 className="text-white text-2xl font-bold mb-2">Weekend Specials</h4>
+                <p className="text-white/90 text-sm mb-4">Rent for 2 days, get 1 day free</p>
+                <Link href="/categories" className="bg-white text-orange-600 font-bold px-5 py-2 rounded-full w-fit hover:bg-gray-50 transition-colors inline-block">
+                  Shop Now
+                </Link>
+              </div>
+            </article>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Categories & Filter Pills */}
+      <section className="py-8 bg-gray-50" aria-labelledby="bestsellers-title">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 relative group/section">
+          <div className="flex flex-wrap gap-3 justify-center mb-12" role="tablist" aria-label="Filter by category">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`font-semibold px-6 py-2 rounded-full shadow-md transition-colors ${selectedCategory === null
+                ? "bg-primary text-white"
+                : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
+                }`}
+              role="tab"
+              aria-selected={selectedCategory === null}
+            >
+              All
+            </button>
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.name)}
+                className={`font-semibold px-6 py-2 rounded-full transition-colors ${selectedCategory === cat.name
+                  ? "bg-primary text-white"
+                  : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
+                  }`}
+                role="tab"
+                aria-selected={selectedCategory === cat.name}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex justify-between items-end mb-8 px-4">
+            <div>
+              <h3 id="bestsellers-title" className="text-3xl font-black text-primary mb-2">Our Bestsellers</h3>
+              <p className="text-black">Explore our most popular rental choices this season.</p>
+            </div>
+            {/* Navigation Buttons */}
+            <div className="hidden md:flex gap-2" role="navigation" aria-label="Product carousel navigation">
+              <button
+                onClick={scrollPrev}
+                className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-colors"
+                aria-label="Previous products"
+              >
+                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+              </button>
+              <button
+                onClick={scrollNext}
+                className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-colors"
+                aria-label="Next products"
+              >
+                <ChevronRight className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          {products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No products available at the moment.</p>
+            </div>
+          ) : (
+            <div className="overflow-hidden p-4 -m-4" ref={bestsellerRef}>
+              <div className="flex -ml-6">
+                {filteredProducts.map((product, index) => (
+                  <div key={product.id} className="flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] pl-6 min-w-0">
+                    <Link href={`/product/${product.id}`} className="group bg-white rounded-[2rem] p-3 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 block h-full" aria-label={`View ${product.name}`}>
+                      <div className="relative aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-3 bg-gray-100">
+                        {product.rating >= 4 && (
+                          <span className="absolute top-3 left-3 bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider z-10 shadow-md">
+                            Top Rated
+                          </span>
+                        )}
+
+                        <img
+                          src={product.images[0]}
+                          alt={product.name}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = 'none';
+                            const fallback = target.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 items-center justify-center" style={{ display: 'none' }}>
+                          <span className="material-symbols-outlined text-6xl text-gray-400">checkroom</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 px-2 pb-2">
+                        <div className="flex justify-between items-start">
+                          <p className="text-[10px] font-bold text-black uppercase tracking-widest line-clamp-1">{product.category.name}</p>
+                          <div className="flex items-center text-amber-400 gap-1 text-xs font-bold bg-amber-50 px-1.5 py-0.5 rounded-md" aria-label={`Rating: ${product.rating} out of 5`}>
+                            <span className="material-symbols-outlined text-sm" aria-hidden="true">star</span>
+                            <span className="text-amber-700 text-[10px]">{product.rating > 0 ? product.rating.toFixed(1) : "New"}</span>
+                          </div>
+                        </div>
+
+                        <h4 className="font-bold text-lg text-gray-900 leading-tight group-hover:text-primary transition-colors line-clamp-1">{product.name}</h4>
+
+                        <div className="flex items-center justify-between pt-2 mt-1">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-black font-medium line-through">₹{Math.round(product.dailyPrice * 1.2)}</span>
+                            <span className="text-2xl font-black text-gray-900">₹{product.dailyPrice}</span>
+                          </div>
+                          <button className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-md hover:bg-gray-800 transition-all group-hover:scale-110" aria-label={`Add ${product.name} to cart`}>
+                            <span className="material-symbols-outlined text-xl" aria-hidden="true">arrow_forward</span>
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </main>
+      </section>
+
+      {/* Testimonials */}
+      <Testimonials />
+
+      {/* Become a Vendor Banner */}
+      <section className="py-20 bg-white" aria-labelledby="vendor-cta-title">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="bg-primary rounded-[2.5rem] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
+            <div className="relative z-10 max-w-xl text-center md:text-left">
+              <h3 id="vendor-cta-title" className="text-3xl md:text-5xl font-black text-white mb-6">Start Your Rental Business</h3>
+              <p className="text-white/80 text-lg mb-8">Join thousands of vendors earning passive income by listing their premium ethnic wear on Rent Square.</p>
+              <Link href="/vendor/signup" className="inline-block bg-secondary text-white font-bold text-lg px-8 py-4 rounded-xl hover:scale-105 transition-transform shadow-lg shadow-secondary/30">
+                Become a Vendor
+              </Link>
+            </div>
+            <div className="hidden md:block relative z-10" aria-hidden="true">
+              <div className="w-64 h-64 bg-white/10 backdrop-blur rounded-full flex items-center justify-center border border-white/20">
+                <span className="material-symbols-outlined text-[8rem] text-white">storefront</span>
+              </div>
+            </div>
+            {/* Decorative Circles */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" aria-hidden="true"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

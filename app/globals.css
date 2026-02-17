@@ -1,21 +1,59 @@
 @import "tailwindcss";
 
 :root {
+  /* PetDuct-inspired palette */
+  --primary: #15803d;
+  /* deep green */
+  --primary-foreground: #ffffff;
+  --secondary: #f97316;
+  /* vibrant orange */
+  --secondary-foreground: #ffffff;
   --background: #ffffff;
   --foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --border: #e5e5e5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --animate-fade-in-up: fade-in-up 0.8s ease-out forwards;
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #166534;
+    /* slightly darker green for dark mode compatibility */
+    --secondary: #ea580c;
+    --muted: #262626;
+    --muted-foreground: #a3a3a3;
+    --border: #262626;
   }
 }
 
@@ -23,4 +61,13 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom Utilities for High Contrast */
+.text-contrast-high {
+  @apply text-slate-900 dark:text-slate-100;
+}
+
+.bg-contrast-low {
+  @apply bg-slate-50 dark:bg-slate-900;
 }
