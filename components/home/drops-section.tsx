@@ -118,21 +118,21 @@ export function DropsSection() {
         // Far: Low Z, Scale Further Down
         if (diff === 0) {
             return {
-                transform: 'translateZ(200px) scale(1.1)',
+                transform: 'translateZ(200px) scale(1)',
                 opacity: 1,
                 filter: 'blur(0px)',
                 zIndex: 20
             };
         } else if (diff === 1) {
             return {
-                transform: 'translateZ(100px) scale(0.9)',
+                transform: 'translateZ(100px) scale(0.8)',
                 opacity: 0.8,
                 filter: 'blur(0.5px)',
                 zIndex: 10
             };
         } else {
             return {
-                transform: 'translateZ(0px) scale(0.75)',
+                transform: 'translateZ(0px) scale(0.6)',
                 opacity: 0.5,
                 filter: 'blur(2px)',
                 zIndex: 0
@@ -174,9 +174,9 @@ export function DropsSection() {
                 </div>
 
                 {/* 3D Carousel */}
-                <div className="relative max-w-[1400px] mx-auto mb-2">
+                <div className="relative max-w-[1400px] mx-auto mb-2 -mx-4 md:mx-auto">
                     <div className="overflow-hidden pt-32 pb-20" ref={emblaRef} style={{ perspective: '1000px' }}>
-                        <div className="flex -ml-4 touch-pan-y items-center" style={{ transformStyle: 'preserve-3d' }}>
+                        <div className="flex items-center" style={{ transformStyle: 'preserve-3d' }}>
                             {products.map((product, index) => {
                                 const slideStyle = getSlideStyle(index);
                                 const isActive = index === selectedIndex;
@@ -186,7 +186,7 @@ export function DropsSection() {
                                         href={`/product/${product.slug || product.id}`}
                                         key={`${product.id}-${index}`}
                                         prefetch={false}
-                                        className="flex-[0_0_70%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
+                                        className="flex-[0_0_70%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] min-w-0 relative group cursor-pointer px-2"
                                         style={{
                                             perspective: '1000px',
                                             zIndex: slideStyle.zIndex

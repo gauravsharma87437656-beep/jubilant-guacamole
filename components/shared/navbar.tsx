@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSession, signOut } from "next-auth/react";
+import { MobileSearchOverlay } from "@/components/shared/mobile-search-overlay";
 
 const navigation = {
   categories: [
@@ -304,51 +305,15 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Search Bar (Expandable) */}
-        {showMobileSearch && (
-          <div className="md:hidden px-4 pb-4 animate-in slide-in-from-top-2">
-            <form onSubmit={handleSearch} className="relative flex items-center">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
-                autoFocus
-                className="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-black text-gray-900"
-              />
-              <button type="submit" className="absolute right-3 text-gray-400 hover:text-black">
-                <Search className="h-5 w-5" />
-              </button>
-            </form>
-            {/* Mobile Suggestions */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute left-4 right-4 bg-white shadow-lg rounded-b-md border border-gray-200 mt-1 z-50 max-h-60 overflow-y-auto">
-                {suggestions.map(product => (
-                  <Link
-                    href={`/product/${product.id}`}
-                    key={product.id}
-                    prefetch={false}
-                    className="block px-4 py-2 hover:bg-gray-50 flex gap-3 items-center border-b border-gray-100 last:border-0"
-                    onClick={() => {
-                      setShowSuggestions(false);
-                      setShowMobileSearch(false);
-                    }}
-                  >
-                    <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                      {product.images && product.images[0] && (
-                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{product.brand?.name || product.category?.name}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Mobile Search Overlay (Full Screen) */}
+        <MobileSearchOverlay
+          isOpen={showMobileSearch}
+          onClose={() => setShowMobileSearch(false)}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          suggestions={suggestions}
+          handleSearch={handleSearch}
+        />
 
         {/* Mobile Menu Drawer */}
         {mobileMenuOpen && (
