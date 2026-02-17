@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     const brand = searchParams.get("brand");
     const category = searchParams.get("category");
     const occasion = searchParams.get("occasion");
+    const gender = searchParams.get("gender");
     const search = searchParams.get("search");
 
     const minPrice = searchParams.get("minPrice");
@@ -46,6 +47,10 @@ export async function GET(request: Request) {
       where.occasion = {
         slug: occasion,
       };
+    }
+
+    if (gender) {
+      where.gender = gender.toUpperCase();
     }
 
     if (search) {
