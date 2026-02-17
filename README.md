@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛍️ RentSquare — Premium Ethnic Wear Rental Platform
 
-## Getting Started
+A full-stack rental marketplace for ethnic and traditional wear, built with **Next.js 16**, **Prisma**, **MySQL**, and **NextAuth.js**.
 
-First, run the development server:
+> 🌐 Live: [https://rentsquire.in](https://rentsquire.in)
+
+---
+
+## ✨ Features
+
+- **Customer Portal** — Browse, search & rent ethnic wear with secure checkout
+- **Vendor Dashboard** — Product management, order tracking, earnings & analytics
+- **Admin Panel** — User management, vendor approvals, financial overview & disputes
+- **Authentication** — Email/password & Google OAuth via NextAuth.js
+- **Responsive Design** — Optimized for mobile, tablet & desktop
+- **Real-time Search** — Filter by category, brand, price & availability
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Framework** | Next.js 16 (App Router, Turbopack) |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS 4 |
+| **Database** | MySQL (Prisma ORM) |
+| **Auth** | NextAuth.js v4 |
+| **UI Components** | Radix UI, Lucide Icons |
+| **State Management** | Zustand |
+| **Email** | Resend |
+| **Deployment** | Hostinger (Node.js) |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- MySQL database
+- npm
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/gauravsharma87437656-beep/jubilant-guacamole.git
+cd jubilant-guacamole
+npm install
+```
+
+### 2. Environment Setup
+
+Create a `.env` file in the root directory:
+
+```env
+# Database
+DATABASE_URL="mysql://username:password@localhost:3306/database_name"
+
+# Auth.js
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key"
+
+# Email (Resend)
+RESEND_API_KEY="your-resend-api-key"
+
+# Platform
+NEXT_PUBLIC_PLATFORM_NAME="RentSquare"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+### 3. Database Setup
+
+```bash
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Project Structure
 
-## Learn More
+```
+├── app/                    # Next.js App Router pages
+│   ├── api/                # API routes
+│   ├── dashboard/          # Admin, Vendor & Customer dashboards
+│   ├── product/            # Product detail pages
+│   └── page.tsx            # Homepage
+├── components/             # Reusable UI components
+│   ├── home/               # Homepage sections
+│   ├── dashboard/          # Dashboard sidebars
+│   ├── cart/               # Cart components
+│   ├── shared/             # Navbar, Footer, etc.
+│   └── ui/                 # Base UI components
+├── lib/                    # Utilities (auth, prisma, helpers)
+├── prisma/                 # Schema & seed data
+├── store/                  # Zustand state management
+└── types/                  # TypeScript type definitions
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔐 User Roles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Role | Access |
+|------|--------|
+| **Customer** | Browse, rent, manage orders & profile |
+| **Vendor** | Product CRUD, order management, earnings tracking |
+| **Admin** | Full platform control, vendor approvals, finance |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📦 Deployment (Hostinger)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Connect your GitHub repo in Hostinger's Node.js hosting
+2. Set environment variables in the dashboard
+3. Build command: `npm run build`
+4. Start command: `npm start`
+
+---
+
+## 📄 License
+
+This project is private and proprietary.
+
+---
+
+Built with ❤️ by the RentSquare Team
