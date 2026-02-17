@@ -1,0 +1,247 @@
+"use client";
+
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+
+interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    image: string;
+    description?: string;
+    productCount: number;
+}
+
+export default function AdminCategories() {
+    const { data: session, status } = useSession();
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+
+    // Form State
+    const [formData, setFormData] = useState({
+        name: "",
+        slug: "",
+        image: "",
+        description: "",
+    });
+
+    useEffect(() => {
+        if (status === "loading") return;
+        if (status === "unauthenticated") redirect("/login");
+        if (session?.user?.role !== "ADMIN") redirect("/dashboard");
+
+        fetchCategories();
+    }, [status, session]);
+
+    const fetchCategories = async () => {
+        try {
+            const res = await fetch("/api/categories");
+            if (res.ok) {
+                const data = await res.json();
+                setCategories(data.categories || []);
+            }
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+            // Auto-generate slug from name if slug is empty or currently matches sluggified name
+            slug: name === "name" && (prev.slug === "" || prev.slug === prev.name.toLowerCase().replace(/\s+/g, '-'))
+                ? value.toLowerCase().replace(/\s+/g, '-')
+                : (name === "slug" ? value : prev.slug)
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitting(true);
+
+        try {
+            const res = await fetch("/api/categories", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            if (res.ok) {
+                // Reset form and refetch
+                setFormData({ name: "", slug: "", image: "", description: "" });
+                fetchCategories();
+                alert("Category created successfully!");
+            } else {
+                const error = await res.json();
+                alert(`Error: ${error.error || "Failed to create category"}`);
+            }
+        } catch (error) {
+            console.error("Error creating category:", error);
+            alert("An unexpected error occurred.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    if (status === "loading" || loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Categories Management</h1>
+                    <p className="text-gray-500 mt-1">Add and manage product categories.</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                {/* Create Category Form */}
+                <div className="lg:col-span-1">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h2 className="text-lg font-bold text-gray-900 mb-4">Add New Category</h2>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                                    placeholder="e.g. Wedding Dresses"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                                <input
+                                    type="text"
+                                    name="slug"
+                                    value={formData.slug}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all bg-gray-50 text-gray-600"
+                                    placeholder="e.g. wedding-dresses"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">URL-friendly version of the name.</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                                <input
+                                    type="url"
+                                    name="image"
+                                    value={formData.image}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                                    placeholder="https://example.com/image.jpg"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleInputChange}
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                                    placeholder="Optional description..."
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="w-full py-2.5 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {submitting ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white border-b-transparent rounded-full animate-spin"></div>
+                                        Creating...
+                                    </>
+                                ) : (
+                                    "Create Category"
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {/* Categories List */}
+                <div className="lg:col-span-2">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                            <h2 className="font-bold text-gray-900">Existing Categories</h2>
+                            <span className="text-sm text-gray-500">{categories.length} Categories</span>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            {categories.length === 0 ? (
+                                <div className="p-8 text-center text-gray-500">
+                                    No categories found. Create one to get started.
+                                </div>
+                            ) : (
+                                <table className="w-full text-left">
+                                    <thead className="bg-white text-xs uppercase text-gray-500 font-semibold border-b border-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-3">Image</th>
+                                            <th className="px-6 py-3">Name</th>
+                                            <th className="px-6 py-3">Slug</th>
+                                            <th className="px-6 py-3 text-center">Products</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {categories.map((category) => (
+                                            <tr key={category.id} className="hover:bg-gray-50 transition-colors group">
+                                                <td className="px-6 py-3">
+                                                    <div className="w-10 h-10 rounded-full bg-gray-100 relative overflow-hidden text-xs flex items-center justify-center text-gray-400">
+                                                        {category.image ? (
+                                                            <Image
+                                                                src={category.image}
+                                                                alt={category.name}
+                                                                fill
+                                                                className="object-cover"
+                                                            />
+                                                        ) : (
+                                                            "No Img"
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-3 text-sm font-medium text-gray-900">
+                                                    {category.name}
+                                                </td>
+                                                <td className="px-6 py-3 text-sm text-gray-500 font-mono text-xs">
+                                                    {category.slug}
+                                                </td>
+                                                <td className="px-6 py-3 text-sm text-gray-500 text-center">
+                                                    {category.productCount}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
+}

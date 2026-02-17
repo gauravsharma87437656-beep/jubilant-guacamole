@@ -11,14 +11,10 @@ import { useSession, signOut } from "next-auth/react";
 import { MobileSearchOverlay } from "@/components/shared/mobile-search-overlay";
 
 const navigation = {
-  categories: [
-    { name: "Wedding", href: "/categories/wedding" },
-    { name: "Party", href: "/categories/party" },
-    { name: "Casual", href: "/categories/casual" },
-    { name: "Formal", href: "/categories/formal" },
-  ],
   pages: [
-    { name: "How it works", href: "/how-it-works" },
+    { name: "Shop All", href: "/shop" },
+    { name: "Male", href: "/categories/male" },
+    { name: "Female", href: "/categories/female" },
   ],
 };
 
@@ -115,26 +111,6 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
-            <div className="relative group">
-              <button className="text-sm font-medium text-black hover:text-gray-900">
-                Categories
-              </button>
-              <div className="absolute left-0 top-full mt-1 w-48 rounded-md bg-white shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <div className="py-2">
-                  {navigation.categories.map((category) => (
-                    <Link
-                      key={category.name}
-                      href={category.href}
-                      prefetch={false}
-                      className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             {navigation.pages.map((page) => (
               <Link
                 key={page.name}
@@ -319,24 +295,6 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4 absolute bg-white w-full left-0 shadow-xl z-40">
             <div className="space-y-4 px-2 pb-4">
-
-              {/* Categories */}
-              <div>
-                <span className="text-xs font-semibold text-black uppercase px-2">
-                  Categories
-                </span>
-                {navigation.categories.map((category) => (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    prefetch={false}
-                    className="block px-3 py-2 text-base font-medium text-black hover:bg-gray-100 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {category.name}
-                  </Link>
-                ))}
-              </div>
 
               {/* Pages */}
               <div>

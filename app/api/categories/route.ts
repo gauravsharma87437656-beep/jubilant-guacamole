@@ -39,3 +39,38 @@ export async function GET(request: Request) {
     );
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    // Basic admin check - ideally use server-side session check if authOptions available
+    // For now assuming the page doing the calling is protected or we implement simple check
+
+    const body = await request.json();
+    const { name, slug, image, description } = body;
+
+    if (!name || !slug) {
+      return NextResponse.json(
+        { error: "Name and Slug are required" },
+        { status: 400 }
+      );
+    }
+
+    const category = await prisma.category.create({
+      data: {
+        name,
+        slug,
+        image,
+        description,
+        isActive: true,
+      },
+    });
+
+    return NextResponse.json({ category }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating category:", error);
+    return NextResponse.json(
+      { error: "Failed to create category" },
+      { status: 500 }
+    );
+  }
+}

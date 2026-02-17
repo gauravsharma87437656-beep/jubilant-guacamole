@@ -13,6 +13,11 @@ export async function GET(request: Request) {
     const category = searchParams.get("category");
     const search = searchParams.get("search");
 
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    const minRating = searchParams.get("minRating");
+    const sort = searchParams.get("sort") || "newest";
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {
       status: "ACTIVE",
@@ -44,14 +49,45 @@ export async function GET(request: Request) {
       ];
     }
 
+    if (minPrice || maxPrice) {
+      where.dailyPrice = {};
+      if (minPrice) where.dailyPrice.gte = parseFloat(minPrice);
+      if (maxPrice) where.dailyPrice.lte = parseFloat(maxPrice);
+    }
+
+    if (minRating) {
+      where.rating = {
+        gte: parseFloat(minRating),
+      };
+    }
+
+    let orderBy: any = { createdAt: "desc" };
+
+    switch (sort) {
+      case "price_asc":
+        orderBy = { dailyPrice: "asc" };
+        break;
+      case "price_desc":
+        orderBy = { dailyPrice: "desc" };
+        break;
+      case "rating":
+        orderBy = { rating: "desc" };
+        break;
+      case "popular":
+        orderBy = { rentalCount: "desc" };
+        break;
+      case "newest":
+      default:
+        orderBy = { createdAt: "desc" };
+        break;
+    }
+
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
         take: limit,
         skip,
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy,
         include: {
           category: {
             select: {
