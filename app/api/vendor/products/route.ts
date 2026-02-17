@@ -77,6 +77,7 @@ export async function POST(request: Request) {
       depositAmount,
       categoryId,
       brandId,
+      occasionId,
       gender,
       status,
       isFeatured,
@@ -101,18 +102,19 @@ export async function POST(request: Request) {
         depositAmount: depositAmount || 50,
         categoryId,
         brandId: brandId || null,
+        occasionId: occasionId || null,
         gender: gender || "NONE",
         vendorId: vendor.id,
         status: status || "DRAFT",
         isFeatured: isFeatured ?? false,
         variants: variants
           ? {
-              create: variants.map((v: { size: string; color?: string; inventory: number }) => ({
-                size: v.size,
-                color: v.color,
-                inventory: v.inventory || 1,
-              })),
-            }
+            create: variants.map((v: { size: string; color?: string; inventory: number }) => ({
+              size: v.size,
+              color: v.color,
+              inventory: v.inventory || 1,
+            })),
+          }
           : undefined,
       },
       include: {

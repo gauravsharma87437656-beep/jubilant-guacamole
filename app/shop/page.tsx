@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Star, Filter, X, ChevronDown, Check } from "lucide-react";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { Pagination } from "@/components/shared/pagination";
 import { useInView } from "react-intersection-observer";
 
 interface Category {
@@ -13,6 +12,13 @@ interface Category {
     name: string;
     slug: string;
     image: string;
+    productCount: number;
+}
+
+interface Occasion {
+    id: string;
+    name: string;
+    slug: string;
     productCount: number;
 }
 
@@ -49,6 +55,7 @@ export default function ShopPage() {
     // Applied filter state (what actually triggers the query)
     const [appliedFilters, setAppliedFilters] = useState({
         category: null as string | null,
+        occasion: null as string | null,
         priceRange: { min: "", max: "" },
         minRating: null as number | null,
         sortBy: "newest",
@@ -57,6 +64,7 @@ export default function ShopPage() {
 
     // Pending filter state (UI state)
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedOccasion, setSelectedOccasion] = useState<string | null>(null);
     const [priceRange, setPriceRange] = useState<{ min: string; max: string }>({ min: "", max: "" });
     const [minRating, setMinRating] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState<string>("newest");
@@ -76,6 +84,18 @@ export default function ShopPage() {
         staleTime: 5 * 60 * 1000,
     });
 
+    // Fetch Occasions
+    const { data: occasions = [] } = useQuery<Occasion[]>({
+        queryKey: ['occasions'],
+        queryFn: async () => {
+            const res = await fetch('/api/occasions?active=true');
+            if (!res.ok) throw new Error('Failed to fetch occasions');
+            const data = await res.json();
+            return data.occasions;
+        },
+        staleTime: 10 * 60 * 1000,
+    });
+
     // Fetch Products (Infinite Query)
     const {
         data,
@@ -89,11 +109,12 @@ export default function ShopPage() {
             const page = typeof pageParam === 'number' ? pageParam : 1;
             const params = new URLSearchParams();
             if (appliedFilters.category) params.append("category", appliedFilters.category);
+            if (appliedFilters.occasion) params.append("occasion", appliedFilters.occasion);
             if (appliedFilters.priceRange.min) params.append("minPrice", appliedFilters.priceRange.min);
             if (appliedFilters.priceRange.max) params.append("maxPrice", appliedFilters.priceRange.max);
             if (appliedFilters.minRating) params.append("minRating", appliedFilters.minRating.toString());
             params.append("sort", appliedFilters.sortBy);
-            params.append("page", pageParam.toString());
+            params.append("page", page.toString());
             params.append("limit", "12");
 
             const res = await fetch(`/api/products?${params.toString()}`);
@@ -127,6 +148,7 @@ export default function ShopPage() {
     const applyFilters = () => {
         setAppliedFilters({
             category: selectedCategory,
+            occasion: selectedOccasion,
             priceRange: { ...priceRange },
             minRating,
             sortBy,
@@ -138,6 +160,7 @@ export default function ShopPage() {
     const clearFilters = () => {
         // Reset UI state
         setSelectedCategory(null);
+        setSelectedOccasion(null);
         setPriceRange({ min: "", max: "" });
         setMinRating(null);
         setSortBy("newest");
@@ -145,6 +168,7 @@ export default function ShopPage() {
         // Reset Applied state
         setAppliedFilters({
             category: null,
+            occasion: null,
             priceRange: { min: "", max: "" },
             minRating: null,
             sortBy: "newest",
@@ -302,6 +326,42 @@ export default function ShopPage() {
                                     </div>
                                 </div>
 
+                                {/* Occasion Filter */}
+                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                                    <h3 className="font-bold text-gray-900 mb-4">Occasion</h3>
+                                    <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                                        <label className="flex items-center gap-3 cursor-pointer group">
+                                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center ${selectedOccasion === null ? 'border-primary bg-primary text-white' : 'border-gray-300'}`}>
+                                                {selectedOccasion === null && <Check className="w-3 h-3" />}
+                                            </div>
+                                            <input
+                                                type="radio"
+                                                name="occasion"
+                                                checked={selectedOccasion === null}
+                                                onChange={() => setSelectedOccasion(null)}
+                                                className="hidden"
+                                            />
+                                            <span className={`text-sm ${selectedOccasion === null ? 'text-gray-900 font-medium' : 'text-gray-600 group-hover:text-gray-900'}`}>Any Occasion</span>
+                                        </label>
+                                        {occasions.map((occasion) => (
+                                            <label key={occasion.id} className="flex items-center gap-3 cursor-pointer group">
+                                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center ${selectedOccasion === occasion.slug ? 'border-primary bg-primary text-white' : 'border-gray-300'}`}>
+                                                    {selectedOccasion === occasion.slug && <Check className="w-3 h-3" />}
+                                                </div>
+                                                <input
+                                                    type="radio"
+                                                    name="occasion"
+                                                    value={occasion.slug}
+                                                    checked={selectedOccasion === occasion.slug}
+                                                    onChange={() => setSelectedOccasion(occasion.slug)}
+                                                    className="hidden"
+                                                />
+                                                <span className={`text-sm ${selectedOccasion === occasion.slug ? 'text-gray-900 font-medium' : 'text-gray-600 group-hover:text-gray-900'}`}>{occasion.name}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 {/* Price Range */}
                                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                                     <h3 className="font-bold text-gray-900 mb-4">Price Range</h3>
@@ -368,7 +428,7 @@ export default function ShopPage() {
                                 </button>
 
                                 {/* Clear Filters Button */}
-                                {(selectedCategory !== null || priceRange.min !== "" || priceRange.max !== "" || minRating !== null || sortBy !== "newest") && (
+                                {(selectedCategory !== null || selectedOccasion !== null || priceRange.min !== "" || priceRange.max !== "" || minRating !== null || sortBy !== "newest") && (
                                     <button
                                         onClick={clearFilters}
                                         className="w-full py-2.5 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"

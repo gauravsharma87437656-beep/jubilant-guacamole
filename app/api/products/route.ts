@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const categoryId = searchParams.get("categoryId");
     const brand = searchParams.get("brand");
     const category = searchParams.get("category");
+    const occasion = searchParams.get("occasion");
     const search = searchParams.get("search");
 
     const minPrice = searchParams.get("minPrice");
@@ -38,6 +39,12 @@ export async function GET(request: Request) {
     if (category) {
       where.category = {
         slug: category,
+      };
+    }
+
+    if (occasion) {
+      where.occasion = {
+        slug: occasion,
       };
     }
 

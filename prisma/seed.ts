@@ -279,6 +279,33 @@ async function main() {
   const raghavendraRathoreBrand = await prisma.brand.findUnique({ where: { slug: 'raghavendra-rathore' } })
   const anushreeReddyBrand = await prisma.brand.findUnique({ where: { slug: 'anushree-reddy' } })
 
+  // Create Occasions
+  const weddingOcc = await prisma.occasion.upsert({
+    where: { slug: 'wedding-occasion' },
+    update: {},
+    create: { name: 'Wedding', slug: 'wedding-occasion', isActive: true, sortOrder: 1 },
+  })
+
+  const partyOcc = await prisma.occasion.upsert({
+    where: { slug: 'party-occasion' },
+    update: {},
+    create: { name: 'Party', slug: 'party-occasion', isActive: true, sortOrder: 2 },
+  })
+
+  const casualOcc = await prisma.occasion.upsert({
+    where: { slug: 'casual-occasion' },
+    update: {},
+    create: { name: 'Casual', slug: 'casual-occasion', isActive: true, sortOrder: 3 },
+  })
+
+  const festivalOcc = await prisma.occasion.upsert({
+    where: { slug: 'festival-occasion' },
+    update: {},
+    create: { name: 'Festival', slug: 'festival-occasion', isActive: true, sortOrder: 4 },
+  })
+
+  console.log('Created occasions')
+
   // Create Products with working Unsplash images
   const products = [
     {
@@ -292,6 +319,7 @@ async function main() {
       dailyPrice: 12499,
       categoryId: weddingCat.id,
       brandId: sabyasachiBrand?.id,
+      occasionId: weddingOcc.id,
       isFeatured: true,
     },
     {
@@ -305,6 +333,7 @@ async function main() {
       dailyPrice: 8999,
       categoryId: weddingCat.id,
       brandId: manishMalhotraBrand?.id,
+      occasionId: weddingOcc.id,
       isFeatured: true,
     },
     {
@@ -318,6 +347,7 @@ async function main() {
       dailyPrice: 6500,
       categoryId: partyCat.id,
       brandId: anushreeReddyBrand?.id,
+      occasionId: partyOcc.id,
       isFeatured: true,
     },
     {
@@ -331,6 +361,7 @@ async function main() {
       dailyPrice: 4999,
       categoryId: formalCat.id,
       brandId: anitaDongreBrand?.id,
+      occasionId: festivalOcc.id,
       isFeatured: true,
     },
     {
@@ -344,6 +375,7 @@ async function main() {
       dailyPrice: 7500,
       categoryId: partyCat.id,
       brandId: rituKumarBrand?.id,
+      occasionId: partyOcc.id,
       isFeatured: true,
     },
     {
@@ -357,6 +389,7 @@ async function main() {
       dailyPrice: 11000,
       categoryId: formalCat.id,
       brandId: raghavendraRathoreBrand?.id,
+      occasionId: weddingOcc.id,
       isFeatured: true,
     },
     {
@@ -370,6 +403,7 @@ async function main() {
       dailyPrice: 15500,
       categoryId: weddingCat.id,
       brandId: tarunTahilianiBrand?.id,
+      occasionId: weddingOcc.id,
       isFeatured: true,
     },
     {
@@ -383,6 +417,7 @@ async function main() {
       dailyPrice: 5500,
       categoryId: casualCat.id,
       brandId: manyavarBrand?.id,
+      occasionId: casualOcc.id,
       isFeatured: true,
     },
   ]
@@ -391,7 +426,10 @@ async function main() {
   for (const productData of products) {
     await prisma.product.upsert({
       where: { slug: productData.slug },
-      update: { images: productData.images },
+      update: {
+        images: productData.images,
+        occasionId: productData.occasionId
+      },
       create: {
         name: productData.name,
         slug: productData.slug,
@@ -400,6 +438,7 @@ async function main() {
         dailyPrice: productData.dailyPrice,
         categoryId: productData.categoryId,
         brandId: productData.brandId,
+        occasionId: productData.occasionId,
         isFeatured: productData.isFeatured,
         status: 'ACTIVE',
         vendorId: demoVendor.id,

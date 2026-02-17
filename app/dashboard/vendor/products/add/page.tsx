@@ -15,6 +15,11 @@ interface Brand {
   name: string;
 }
 
+interface Occasion {
+  id: string;
+  name: string;
+}
+
 interface VariantInput {
   size: string;
   color: string;
@@ -33,11 +38,13 @@ export default function AddProductPage() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [occasions, setOccasions] = useState<Occasion[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     categoryId: "",
     brandId: "",
+    occasionId: "",
     gender: "",
     dailyPrice: "",
     weeklyPrice: "",
@@ -53,6 +60,7 @@ export default function AddProductPage() {
   useEffect(() => {
     fetchCategories();
     fetchBrands();
+    fetchOccasions();
   }, []);
 
   const fetchCategories = async () => {
@@ -76,6 +84,18 @@ export default function AddProductPage() {
       }
     } catch (error) {
       console.error("Error fetching brands:", error);
+    }
+  };
+
+  const fetchOccasions = async () => {
+    try {
+      const res = await fetch("/api/occasions?active=true");
+      const data = await res.json();
+      if (res.ok) {
+        setOccasions(data.occasions || []);
+      }
+    } catch (error) {
+      console.error("Error fetching occasions:", error);
     }
   };
 
@@ -195,6 +215,23 @@ export default function AddProductPage() {
                     {brands.map((brand) => (
                       <option key={brand.id} value={brand.id}>
                         {brand.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Occasion
+                  </label>
+                  <select
+                    value={formData.occasionId}
+                    onChange={(e) => setFormData({ ...formData, occasionId: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 bg-gray-50/50 transition-all font-medium"
+                  >
+                    <option value="">Select occasion</option>
+                    {occasions.map((occ) => (
+                      <option key={occ.id} value={occ.id}>
+                        {occ.name}
                       </option>
                     ))}
                   </select>
