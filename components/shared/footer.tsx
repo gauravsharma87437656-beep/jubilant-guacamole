@@ -31,9 +31,9 @@ export function Footer() {
           <div>
             <Link href="/" prefetch={false} className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
-                <span className="material-symbols-outlined text-lg">diamond</span>
+                <span className="material-symbols-outlined text-lg">layers</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">RentSquire</span>
+              <span className="text-xl font-bold text-gray-900">Rent Square</span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-600">
               India's premium fashion rental marketplace. Authentic designer wear, verified quality, and secure transactions.
@@ -104,7 +104,7 @@ export function Footer() {
         <div className="mt-16 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-              &copy; {new Date().getFullYear()} RentSquire. All rights reserved.
+              &copy; {new Date().getFullYear()} Rent Square. All rights reserved.
             </p>
 
             {/* Trust Badges */}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -33,6 +34,9 @@ interface Category {
 }
 
 export default function CategoriesPage() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search");
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,20 +44,22 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [search]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
+      const query = search ? `&search=${encodeURIComponent(search)}` : "";
       const [catRes, prodRes] = await Promise.all([
         fetch("/api/categories"),
-        fetch("/api/products?limit=12")
+        fetch(`/api/products?limit=12${query}`)
       ]);
-      
+
       if (catRes.ok) {
         const catData = await catRes.json();
         setCategories(catData.categories || []);
       }
-      
+
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         setProducts(prodData.products || []);
@@ -147,7 +153,7 @@ export default function CategoriesPage() {
                   <option>Top Rated</option>
                 </select>
                 <div className="flex border rounded-md" role="group" aria-label="View mode">
-                  <button 
+                  <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
                     aria-label="Grid view"
@@ -155,7 +161,7 @@ export default function CategoriesPage() {
                   >
                     <Grid className="h-5 w-5" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => setViewMode('list')}
                     className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
                     aria-label="List view"

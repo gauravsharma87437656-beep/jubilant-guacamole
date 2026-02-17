@@ -290,7 +290,7 @@ export default function HomePage() {
           <div className="bg-primary rounded-[2.5rem] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
             <div className="relative z-10 max-w-xl text-center md:text-left">
               <h3 id="vendor-cta-title" className="text-3xl md:text-5xl font-black text-white mb-6">Start Your Rental Business</h3>
-              <p className="text-white/80 text-lg mb-8">Join thousands of vendors earning passive income by listing their premium ethnic wear on RentSquire.</p>
+              <p className="text-white/80 text-lg mb-8">Join thousands of vendors earning passive income by listing their premium ethnic wear on Rent Square.</p>
               <Link href="/vendor/signup" prefetch={false} className="inline-block bg-secondary text-white font-bold text-lg px-8 py-4 rounded-xl hover:scale-105 transition-transform shadow-lg shadow-secondary/30">
                 Become a Vendor
               </Link>

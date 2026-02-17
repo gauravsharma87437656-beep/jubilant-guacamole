@@ -19,7 +19,7 @@ interface Banner {
 
 function HeroSkeleton() {
     return (
-        <div className="relative w-full h-[60vh] md:h-[calc(100vh-80px)] bg-gray-200 animate-pulse">
+        <div className="relative w-full aspect-[4/3] md:h-[calc(100vh-80px)] md:aspect-auto bg-gray-200 animate-pulse">
             <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
                 <div className="h-4 w-32 bg-gray-300 rounded mb-4"></div>
                 <div className="h-12 w-64 bg-gray-300 rounded mb-6"></div>
@@ -86,7 +86,7 @@ export function HeroCarousel() {
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
                     {banners.map((slide) => (
-                        <div key={slide.id} className="relative flex-[0_0_100%] min-w-0 h-[60vh] md:h-[calc(100vh-80px)]">
+                        <div key={slide.id} className="relative flex-[0_0_100%] min-w-0 aspect-[4/3] md:aspect-auto md:h-[calc(100vh-80px)]">
                             {!loadedImages.has(slide.id) && (
                                 <div className="absolute inset-0 bg-gray-800 animate-pulse" />
                             )}
@@ -111,18 +111,18 @@ export function HeroCarousel() {
                             </div>
                             {/* Content Layer (separate from background blend mode) */}
                             <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-10">
-                                <span className="text-secondary font-bold tracking-[0.2em] uppercase mb-2 md:mb-4 text-xs md:text-base animate-fade-in-up drop-shadow-md">
+                                <span className="text-secondary font-bold tracking-[0.2em] uppercase mb-1 md:mb-4 text-[10px] md:text-base animate-fade-in-up drop-shadow-md">
                                     {slide.subtitle}
                                 </span>
-                                <h2 className="text-white text-3xl md:text-6xl lg:text-8xl font-black max-w-5xl leading-tight mb-4 md:mb-8 animate-fade-in-up delay-100 drop-shadow-lg uppercase px-2">
+                                <h2 className="text-white text-2xl md:text-6xl lg:text-8xl font-black max-w-5xl leading-tight mb-2 md:mb-8 animate-fade-in-up delay-100 drop-shadow-lg uppercase px-2">
                                     {slide.title}
                                 </h2>
                                 {slide.link ? (
-                                    <Link href={slide.link} prefetch={false} className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-6 py-3 md:px-8 md:py-4 rounded-full text-sm md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
+                                    <Link href={slide.link} prefetch={false} className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-4 py-2 md:px-8 md:py-4 rounded-full text-xs md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
                                         Shop Collection
                                     </Link>
                                 ) : (
-                                    <button className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-6 py-3 md:px-8 md:py-4 rounded-full text-sm md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
+                                    <button className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-4 py-2 md:px-8 md:py-4 rounded-full text-xs md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
                                         Shop Collection
                                     </button>
                                 )}
@@ -149,13 +149,13 @@ export function HeroCarousel() {
             </button>
 
             {/* Dots */}
-            <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-20">
+            <div className="absolute bottom-4 md:bottom-8 left-0 right-0 flex justify-center gap-3 z-20">
                 {banners.map((_, index) => (
                     <button
                         key={index}
                         className={`transition-all duration-300 rounded-full cursor-pointer ${index === selectedIndex
-                            ? 'bg-white w-8 h-2 md:w-12 md:h-3'
-                            : 'bg-white/40 w-2 h-2 md:w-3 md:h-3 hover:bg-white/60'
+                            ? 'bg-white w-6 h-1.5 md:w-12 md:h-3'
+                            : 'bg-white/40 w-1.5 h-1.5 md:w-3 md:h-3 hover:bg-white/60'
                             }`}
                         onClick={() => scrollTo(index)}
                         aria-label={`Go to slide ${index + 1}`}

@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const categoryId = searchParams.get("categoryId");
     const brand = searchParams.get("brand");
     const category = searchParams.get("category");
+    const search = searchParams.get("search");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {
@@ -33,6 +34,14 @@ export async function GET(request: Request) {
       where.category = {
         slug: category,
       };
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { category: { name: { contains: search, mode: "insensitive" } } },
+        { brand: { name: { contains: search, mode: "insensitive" } } },
+      ];
     }
 
     const [products, total] = await Promise.all([

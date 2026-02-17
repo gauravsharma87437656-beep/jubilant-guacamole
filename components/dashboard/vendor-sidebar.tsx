@@ -27,7 +27,7 @@ export function VendorSidebar({
                     <span className="material-symbols-outlined">storefront</span>
                 </div>
                 <div>
-                    <h1 className="font-bold text-lg leading-none text-gray-900">RentSquire</h1>
+                    <h1 className="font-bold text-lg leading-none text-gray-900">Rent Square</h1>
                     <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider font-semibold">Vendor Hub</p>
                 </div>
             </div>
