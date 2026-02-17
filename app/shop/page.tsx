@@ -19,6 +19,7 @@ interface Occasion {
     id: string;
     name: string;
     slug: string;
+    image: string | null;
     productCount: number;
 }
 
@@ -181,6 +182,11 @@ export default function ShopPage() {
         setAppliedFilters(prev => ({ ...prev, category: slug, page: 1 }));
     };
 
+    const handleOccasionClick = (slug: string | null) => {
+        setSelectedOccasion(slug);
+        setAppliedFilters(prev => ({ ...prev, occasion: slug, page: 1 }));
+    };
+
     // Error state
     if (status === 'error') {
         return (
@@ -209,30 +215,30 @@ export default function ShopPage() {
         <div className="min-h-screen bg-gray-50 pb-12 relative">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                {/* Categories Section - Circular (Horizontal Scroll on Mobile) */}
-                <section aria-labelledby="shop-categories" className="mb-10 overflow-x-auto pt-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+                {/* Occasions Section - Circular (Horizontal Scroll on Mobile) */}
+                <section aria-labelledby="shop-occasions" className="mb-10 overflow-x-auto pt-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0">
                     <div className="flex justify-start md:justify-center gap-6 md:gap-8 min-w-max md:min-w-0">
                         <button
-                            onClick={() => handleCategoryClick(null)}
-                            className={`group flex flex-col items-center gap-3 transition-all ${selectedCategory === null ? 'scale-110' : 'hover:scale-105'}`}
+                            onClick={() => handleOccasionClick(null)}
+                            className={`group flex flex-col items-center gap-3 transition-all ${appliedFilters.occasion === null ? 'scale-110' : 'hover:scale-105'}`}
                         >
-                            <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 flex items-center justify-center bg-gray-100 ${selectedCategory === null ? 'border-primary' : 'border-transparent group-hover:border-gray-300'}`}>
+                            <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 flex items-center justify-center bg-gray-100 ${appliedFilters.occasion === null ? 'border-primary' : 'border-transparent group-hover:border-gray-300'}`}>
                                 <span className="text-sm font-bold text-gray-500">ALL</span>
                             </div>
-                            <span className={`text-sm font-bold ${selectedCategory === null ? 'text-primary' : 'text-gray-700'}`}>View All</span>
+                            <span className={`text-sm font-bold ${appliedFilters.occasion === null ? 'text-primary' : 'text-gray-700'}`}>View All</span>
                         </button>
 
-                        {categories.map((category) => (
+                        {occasions.map((occasion) => (
                             <button
-                                key={category.id}
-                                onClick={() => handleCategoryClick(category.slug)}
-                                className={`group flex flex-col items-center gap-3 transition-all ${selectedCategory === category.slug ? 'scale-110' : 'hover:scale-105'}`}
+                                key={occasion.id}
+                                onClick={() => handleOccasionClick(occasion.slug)}
+                                className={`group flex flex-col items-center gap-3 transition-all ${appliedFilters.occasion === occasion.slug ? 'scale-110' : 'hover:scale-105'}`}
                             >
-                                <div className={`relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 shadow-sm ${selectedCategory === category.slug ? 'border-primary' : 'border-white group-hover:border-gray-300'}`}>
-                                    {category.image ? (
+                                <div className={`relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 shadow-sm ${appliedFilters.occasion === occasion.slug ? 'border-primary' : 'border-white group-hover:border-gray-300'}`}>
+                                    {occasion.image ? (
                                         <Image
-                                            src={category.image}
-                                            alt={category.name}
+                                            src={occasion.image}
+                                            alt={occasion.name}
                                             fill
                                             className="object-cover"
                                         />
@@ -240,7 +246,7 @@ export default function ShopPage() {
                                         <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No Img</div>
                                     )}
                                 </div>
-                                <span className={`text-sm font-bold ${selectedCategory === category.slug ? 'text-primary' : 'text-gray-700'}`}>{category.name}</span>
+                                <span className={`text-sm font-bold ${appliedFilters.occasion === occasion.slug ? 'text-primary' : 'text-gray-700'}`}>{occasion.name}</span>
                             </button>
                         ))}
                     </div>
