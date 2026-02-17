@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { useQuery } from '@tanstack/react-query';
 import Autoplay from 'embla-carousel-autoplay';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -26,7 +27,29 @@ interface APIProduct {
 }
 
 export function DropsSection() {
-    const [products, setProducts] = useState<DropProduct[]>([]);
+    const { data: products = [] } = useQuery<DropProduct[]>({
+        queryKey: ['drops-products'],
+        queryFn: async () => {
+            const res = await fetch('/api/products?featured=true&limit=12');
+            if (!res.ok) throw new Error('Failed to fetch products');
+            const data = await res.json();
+            if (data.products && data.products.length > 0) {
+                const transformedProducts: DropProduct[] = data.products.map((p: APIProduct) => ({
+                    id: p.id,
+                    name: p.name,
+                    image: p.images && p.images[0] ? p.images[0] : '',
+                    price: p.dailyPrice,
+                    brand: p.brand?.name || '',
+                    slug: p.slug
+                }));
+                // Duplicate for smoother infinite loop
+                return [...transformedProducts, ...transformedProducts];
+            }
+            return [];
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: true,
         align: 'center',
@@ -34,33 +57,6 @@ export function DropsSection() {
     }, [Autoplay({ delay: 3000, stopOnInteraction: false })]);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
-
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    const fetchProducts = async () => {
-        try {
-            const res = await fetch('/api/products?featured=true&limit=12');
-            if (res.ok) {
-                const data = await res.json();
-                if (data.products && data.products.length > 0) {
-                    const transformedProducts: DropProduct[] = data.products.map((p: APIProduct) => ({
-                        id: p.id,
-                        name: p.name,
-                        image: p.images && p.images[0] ? p.images[0] : '',
-                        price: p.dailyPrice,
-                        brand: p.brand?.name || '',
-                        slug: p.slug
-                    }));
-                    // Duplicate for smoother infinite loop
-                    setProducts([...transformedProducts, ...transformedProducts]);
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching products:', error);
-        }
-    };
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -189,6 +185,7 @@ export function DropsSection() {
                                     <Link
                                         href={`/product/${product.slug || product.id}`}
                                         key={`${product.id}-${index}`}
+                                        prefetch={false}
                                         className="flex-[0_0_70%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
                                         style={{
                                             perspective: '1000px',
@@ -258,6 +255,7 @@ export function DropsSection() {
                                 </p>
                                 <Link
                                     href={`/product/${activeProduct.slug || activeProduct.id}`}
+                                    prefetch={false}
                                     className="block w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-xs"
                                 >
                                     Explore

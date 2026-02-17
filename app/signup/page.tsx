@@ -30,7 +30,7 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -223,7 +223,7 @@ export default function SignupPage() {
 
           <p className="text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-primary hover:text-primary/80">
+            <Link href="/login" prefetch={false} className="font-medium text-primary hover:text-primary/80">
               Sign in
             </Link>
           </p>

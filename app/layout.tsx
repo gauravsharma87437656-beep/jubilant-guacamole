@@ -8,7 +8,7 @@ import { CartDrawer } from "@/components/cart/cart-drawer";
 import { CookieConsent } from "@/components/shared/cookie-consent";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   display: 'swap',
   variable: '--font-inter',
@@ -26,14 +26,14 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "RentSquare - Rent Fashion for Any Occasion",
-    template: "%s | RentSquare",
+    default: "RentSquire - Rent Fashion for Any Occasion",
+    template: "%s | RentSquire",
   },
   description: "Rent designer dresses, shoes, and accessories for weddings, parties, and special events. Save money with our rental service.",
   keywords: ["fashion rental", "dress rental", "wedding dress", "party dress", "designer rental"],
-  authors: [{ name: "RentSquare" }],
-  creator: "RentSquare",
-  publisher: "RentSquare",
+  authors: [{ name: "RentSquire" }],
+  creator: "RentSquire",
+  publisher: "RentSquire",
   robots: {
     index: true,
     follow: true,
@@ -48,13 +48,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'RentSquare',
-    title: 'RentSquare - Rent Fashion for Any Occasion',
+    siteName: 'RentSquire',
+    title: 'RentSquire - Rent Fashion for Any Occasion',
     description: 'Rent designer dresses, shoes, and accessories for weddings, parties, and special events.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RentSquare - Rent Fashion for Any Occasion',
+    title: 'RentSquire - Rent Fashion for Any Occasion',
     description: 'Rent designer dresses, shoes, and accessories for weddings, parties, and special events.',
   },
 };

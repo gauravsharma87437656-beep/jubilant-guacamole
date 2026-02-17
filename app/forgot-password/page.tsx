@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
 
   const handleResend = async () => {
     if (resendCooldown > 0) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/forgot-password", {
@@ -86,8 +86,8 @@ export default function ForgotPasswordPage() {
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleResend}
               disabled={loading || resendCooldown > 0}
               className="w-full"
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
               )}
             </Button>
 
-            <Link href="/login" className="w-full">
+            <Link href="/login" prefetch={false} className="w-full">
               <Button variant="ghost" className="w-full">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Sign In
@@ -163,7 +163,7 @@ export default function ForgotPasswordPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-rose-600 hover:text-rose-500">
+            <Link href="/login" prefetch={false} className="text-sm text-rose-600 hover:text-rose-500">
               <ArrowLeft className="h-4 w-4 inline mr-1" />
               Back to Sign In
             </Link>

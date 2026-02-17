@@ -1,14 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
-import { HeroCarousel } from "@/components/home/hero-carousel";
-import { DropsSection } from "@/components/home/drops-section";
-import { Testimonials } from "@/components/home/testimonials";
-import { FeaturedBrands } from "@/components/home/featured-brands";
+import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+
+const HeroCarousel = dynamic(() => import("@/components/home/hero-carousel").then((mod) => mod.HeroCarousel), {
+  ssr: true,
+  loading: () => <div className="h-[60vh] md:h-[calc(100vh-80px)] bg-gray-200 animate-pulse" />,
+});
+
+const DropsSection = dynamic(() => import("@/components/home/drops-section").then((mod) => mod.DropsSection), {
+  ssr: true,
+  loading: () => <div className="h-96 w-full bg-gray-50 animate-pulse rounded-lg" />,
+});
+
+const Testimonials = dynamic(() => import("@/components/home/testimonials").then((mod) => mod.Testimonials), {
+  ssr: true,
+});
+
+const FeaturedBrands = dynamic(() => import("@/components/home/featured-brands").then((mod) => mod.FeaturedBrands), {
+  ssr: true,
+  loading: () => <div className="h-48 w-full bg-white animate-pulse" />,
+});
 
 interface Category {
   id: string;
@@ -35,36 +51,31 @@ interface Product {
 }
 
 export default function HomePage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data: categories = [], isLoading: catLoading } = useQuery<Category[]>({
+    queryKey: ['home-categories'],
+    queryFn: async () => {
+      const res = await fetch("/api/categories");
+      if (!res.ok) throw new Error('Failed to fetch categories');
+      const data = await res.json();
+      return data.categories?.slice(0, 4) || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-  const fetchData = async () => {
-    try {
-      // Fetch categories
-      const catRes = await fetch("/api/categories");
-      if (catRes.ok) {
-        const catData = await catRes.json();
-        setCategories(catData.categories?.slice(0, 4) || []);
-      }
+  const { data: products = [], isLoading: prodLoading } = useQuery<Product[]>({
+    queryKey: ['home-products'],
+    queryFn: async () => {
+      const res = await fetch("/api/products?featured=true&limit=8");
+      if (!res.ok) throw new Error('Failed to fetch products');
+      const data = await res.json();
+      return data.products || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-      // Fetch featured products
-      const prodRes = await fetch("/api/products?featured=true&limit=8");
-      if (prodRes.ok) {
-        const prodData = await prodRes.json();
-        setProducts(prodData.products || []);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = catLoading || prodLoading;
 
   // Filter products by selected category
   const filteredProducts = selectedCategory
@@ -132,7 +143,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-primary/70 to-transparent flex flex-col justify-center p-8">
                 <h4 className="text-4xl font-black text-white mb-1">50% <span className="text-xl">OFF</span></h4>
                 <p className="text-white font-bold mb-4">Sherwanis & Suits</p>
-                <Link href="/categories" className="bg-secondary text-white font-bold px-5 py-2 rounded-full w-fit hover:bg-secondary/90 transition-colors inline-block">
+                <Link href="/categories" prefetch={false} className="bg-secondary text-white font-bold px-5 py-2 rounded-full w-fit hover:bg-secondary/90 transition-colors inline-block">
                   Check Now
                 </Link>
               </div>
@@ -143,7 +154,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-orange-600/60 to-transparent flex flex-col justify-center p-8">
                 <h4 className="text-white text-2xl font-bold mb-2">Weekend Specials</h4>
                 <p className="text-white/90 text-sm mb-4">Rent for 2 days, get 1 day free</p>
-                <Link href="/categories" className="bg-white text-orange-600 font-bold px-5 py-2 rounded-full w-fit hover:bg-gray-50 transition-colors inline-block">
+                <Link href="/categories" prefetch={false} className="bg-white text-orange-600 font-bold px-5 py-2 rounded-full w-fit hover:bg-gray-50 transition-colors inline-block">
                   Shop Now
                 </Link>
               </div>
@@ -216,7 +227,7 @@ export default function HomePage() {
               <div className="flex -ml-6">
                 {filteredProducts.map((product, index) => (
                   <div key={product.id} className="flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] pl-6 min-w-0">
-                    <Link href={`/product/${product.id}`} className="group bg-white rounded-[2rem] p-3 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 block h-full" aria-label={`View ${product.name}`}>
+                    <Link href={`/product/${product.id}`} prefetch={false} className="group bg-white rounded-[2rem] p-3 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 block h-full" aria-label={`View ${product.name}`}>
                       <div className="relative aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-3 bg-gray-100">
                         {product.rating >= 4 && (
                           <span className="absolute top-3 left-3 bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider z-10 shadow-md">
@@ -279,8 +290,8 @@ export default function HomePage() {
           <div className="bg-primary rounded-[2.5rem] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
             <div className="relative z-10 max-w-xl text-center md:text-left">
               <h3 id="vendor-cta-title" className="text-3xl md:text-5xl font-black text-white mb-6">Start Your Rental Business</h3>
-              <p className="text-white/80 text-lg mb-8">Join thousands of vendors earning passive income by listing their premium ethnic wear on Rent Square.</p>
-              <Link href="/vendor/signup" className="inline-block bg-secondary text-white font-bold text-lg px-8 py-4 rounded-xl hover:scale-105 transition-transform shadow-lg shadow-secondary/30">
+              <p className="text-white/80 text-lg mb-8">Join thousands of vendors earning passive income by listing their premium ethnic wear on RentSquire.</p>
+              <Link href="/vendor/signup" prefetch={false} className="inline-block bg-secondary text-white font-bold text-lg px-8 py-4 rounded-xl hover:scale-105 transition-transform shadow-lg shadow-secondary/30">
                 Become a Vendor
               </Link>
             </div>

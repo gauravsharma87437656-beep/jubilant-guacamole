@@ -98,8 +98,8 @@ export default function VendorSettingsPage() {
           <button
             onClick={() => setActiveTab("profile")}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "profile"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              ? "border-blue-500 text-blue-600"
+              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
           >
             Business Profile
@@ -107,8 +107,8 @@ export default function VendorSettingsPage() {
           <button
             onClick={() => setActiveTab("payment")}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "payment"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              ? "border-blue-500 text-blue-600"
+              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
           >
             Payment Settings
@@ -116,8 +116,8 @@ export default function VendorSettingsPage() {
           <button
             onClick={() => setActiveTab("notifications")}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "notifications"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              ? "border-blue-500 text-blue-600"
+              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
           >
             Notifications
@@ -402,7 +402,7 @@ export default function VendorSettingsPage() {
               <div>
                 <p className="font-medium text-gray-900">Marketing Emails</p>
                 <p className="text-sm text-gray-500">
-                  Receive tips and updates about RentSquare
+                  Receive tips and updates about RentSquire
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">

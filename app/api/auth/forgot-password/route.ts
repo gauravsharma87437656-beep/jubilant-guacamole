@@ -48,9 +48,9 @@ export async function POST(req: Request) {
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
     const { error } = await resend.emails.send({
-      from: "RentSquare <nishant-sharma@tryholo.studio>",
+      from: "RentSquire <nishant-sharma@tryholo.studio>",
       to: email,
-      subject: "Reset Your Password - RentSquare",
+      subject: "Reset Your Password - RentSquire",
       html: `
 <!DOCTYPE html>
 <html>
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   <div style="max-width: 500px; margin: 0 auto; background-color: white; border-radius: 12px; padding: 40px 32px;">
     <!-- Logo -->
     <div style="text-align: center; margin-bottom: 24px;">
-      <h1 style="color: #15803d; margin: 0; font-size: 28px; font-weight: 700;">RentSquare</h1>
+      <h1 style="color: #15803d; margin: 0; font-size: 28px; font-weight: 700;">RentSquire</h1>
     </div>
     
     <!-- Content -->
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     <!-- Footer -->
     <div style="text-align: center; margin-top: 24px;">
       <p style="color: #94a3b8; font-size: 11px; margin: 0;">
-        © ${new Date().getFullYear()} RentSquare. All rights reserved.
+        © ${new Date().getFullYear()} RentSquire. All rights reserved.
       </p>
     </div>
   </div>
@@ -110,8 +110,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to send email. Please try again." }, { status: 500 });
     }
 
-    return NextResponse.json({ 
-      message: "If an account exists with this email, you will receive a password reset link." 
+    return NextResponse.json({
+      message: "If an account exists with this email, you will receive a password reset link."
     });
   } catch (error) {
     console.error("Forgot password error:", error);

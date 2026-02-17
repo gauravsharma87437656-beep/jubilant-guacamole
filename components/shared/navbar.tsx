@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, User, Menu, X, LogOut } from "lucide-react";
+import { ShoppingCart, User, Menu, X, LogOut, Search } from "lucide-react";
 import { useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,16 @@ export function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const cartItems = useCartStore((state) => state.items);
   const toggleCart = useCartStore((state) => state.toggleCart);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/categories?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+    }
+  };
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -67,6 +77,7 @@ export function Navbar() {
                     <Link
                       key={category.name}
                       href={category.href}
+                      prefetch={false}
                       className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
                     >
                       {category.name}
@@ -81,6 +92,7 @@ export function Navbar() {
               <Link
                 key={page.name}
                 href={page.href}
+                prefetch={false}
                 className={cn(
                   "text-sm font-medium transition-colors hover:text-gray-900",
                   pathname === page.href
@@ -96,22 +108,31 @@ export function Navbar() {
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             {/* Search (placeholder) */}
-            <button className="hidden md:flex p-2 text-black hover:text-gray-900 cursor-pointer">
-              <span className="sr-only">Search</span>
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            {/* Search */}
+            {isSearchOpen ? (
+              <form onSubmit={handleSearch} className="relative hidden md:flex items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="pl-3 pr-10 py-1 border border-gray-300 rounded-full text-sm focus:outline-none focus:border-black transition-all w-48 lg:w-64"
+                  autoFocus
+                  onBlur={() => !searchQuery && setIsSearchOpen(false)}
                 />
-              </svg>
-            </button>
+                <button type="submit" className="absolute right-2 text-gray-400 hover:text-black">
+                  <Search className="h-4 w-4" />
+                </button>
+              </form>
+            ) : (
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="hidden md:flex p-2 text-black hover:text-gray-900 cursor-pointer"
+              >
+                <span className="sr-only">Search</span>
+                <Search className="h-5 w-5" />
+              </button>
+            )}
 
             {/* Cart */}
             <button
@@ -148,6 +169,7 @@ export function Navbar() {
                     <div className="py-1">
                       <Link
                         href={getDashboardLink()}
+                        prefetch={false}
                         className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -155,6 +177,7 @@ export function Navbar() {
                       </Link>
                       <Link
                         href="/dashboard/customer/profile"
+                        prefetch={false}
                         className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -176,7 +199,7 @@ export function Navbar() {
               </div>
             ) : (
               <div className="hidden md:flex items-center space-x-2">
-                <Link href="/login">
+                <Link href="/login" prefetch={false}>
                   <Button
                     size="sm"
                     className="bg-black text-white hover:bg-gray-900 hover:text-white hover:font-bold transition-all"
@@ -216,6 +239,7 @@ export function Navbar() {
                 <Link
                   key={category.name}
                   href={category.href}
+                  prefetch={false}
                   className="block px-3 py-2 text-base font-medium text-black hover:bg-gray-100"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -233,6 +257,7 @@ export function Navbar() {
                 <Link
                   key={page.name}
                   href={page.href}
+                  prefetch={false}
                   className="block px-3 py-2 text-base font-medium text-black hover:bg-gray-100"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -243,7 +268,7 @@ export function Navbar() {
               {/* Auth Links */}
               {session ? (
                 <div className="pt-4 flex flex-col space-y-2 px-3">
-                  <Link href={getDashboardLink()}>
+                  <Link href={getDashboardLink()} prefetch={false}>
                     <Button variant="outline" className="w-full">
                       <User className="h-4 w-4 mr-2" />
                       Dashboard
@@ -260,7 +285,7 @@ export function Navbar() {
                 </div>
               ) : (
                 <div className="pt-4 flex flex-col space-y-2 px-3">
-                  <Link href="/login">
+                  <Link href="/login" prefetch={false}>
                     <Button className="w-full bg-black text-white hover:bg-gray-900 hover:text-white hover:font-bold transition-all">Sign In</Button>
                   </Link>
                 </div>

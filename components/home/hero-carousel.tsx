@@ -6,6 +6,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
 
 interface Banner {
     id: string;
@@ -29,40 +30,20 @@ function HeroSkeleton() {
 }
 
 export function HeroCarousel() {
-    const [banners, setBanners] = useState<Banner[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: banners = [], isLoading: loading } = useQuery<Banner[]>({
+        queryKey: ['hero-banners'],
+        queryFn: async () => {
+            const res = await fetch('/api/banners?position=home&active=true');
+            if (!res.ok) throw new Error('Failed to fetch banners');
+            const data = await res.json();
+            return data.banners || [];
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000, stopOnInteraction: false })]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
-
-    useEffect(() => {
-        let isMounted = true;
-        
-        const fetchBanners = async () => {
-            try {
-                setLoading(true);
-                const res = await fetch('/api/banners?position=home&active=true');
-                if (res.ok && isMounted) {
-                    const data = await res.json();
-                    if (data.banners && data.banners.length > 0) {
-                        setBanners(data.banners);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching banners:', error);
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-        
-        fetchBanners();
-        
-        return () => {
-            isMounted = false;
-        };
-    }, []);
 
     const handleImageLoad = (id: string) => {
         setLoadedImages(prev => new Set(prev).add(id));
@@ -119,9 +100,8 @@ export function HeroCarousel() {
                                 quality={90}
                                 sizes="100vw"
                                 onLoad={() => handleImageLoad(slide.id)}
-                                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                                    loadedImages.has(slide.id) ? 'opacity-100' : 'opacity-0'
-                                }`}
+                                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${loadedImages.has(slide.id) ? 'opacity-100' : 'opacity-0'
+                                    }`}
                             />
                             {/* Overlay - adjusting opacity based on theme */}
                             <div className={`absolute inset-0 flex flex-col justify-center items-center text-center px-6 md:px-16 lg:px-24 ${slide.theme === 'red'
@@ -138,7 +118,7 @@ export function HeroCarousel() {
                                     {slide.title}
                                 </h2>
                                 {slide.link ? (
-                                    <Link href={slide.link} className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-6 py-3 md:px-8 md:py-4 rounded-full text-sm md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
+                                    <Link href={slide.link} prefetch={false} className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-6 py-3 md:px-8 md:py-4 rounded-full text-sm md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
                                         Shop Collection
                                     </Link>
                                 ) : (

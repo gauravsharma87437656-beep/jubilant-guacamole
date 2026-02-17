@@ -122,11 +122,10 @@ export default function VendorKYCPage() {
             </p>
           </div>
           <span
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
-              data?.isVerified
+            className={`px-4 py-2 rounded-full text-sm font-medium ${data?.isVerified
                 ? "bg-green-100 text-green-800"
                 : "bg-yellow-100 text-yellow-800"
-            }`}
+              }`}
           >
             {data?.isVerified ? "Verified" : "Pending Verification"}
           </span>
@@ -227,7 +226,7 @@ export default function VendorKYCPage() {
         </h2>
         <div className="prose prose-sm text-gray-600 mb-4">
           <p>
-            By operating as a vendor on RentSquare, you agree to the following
+            By operating as a vendor on RentSquire, you agree to the following
             terms:
           </p>
           <ul className="list-disc pl-5 space-y-2">

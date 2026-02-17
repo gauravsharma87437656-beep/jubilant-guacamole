@@ -48,11 +48,11 @@ export default function LoginPage() {
       } else {
         // Wait a moment for the session to be established
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Get session to check role
         const sessionRes = await fetch("/api/auth/session");
         const sessionData = await sessionRes.json();
-        
+
         // Redirect based on role
         if (sessionData?.user?.role === "ADMIN") {
           router.push("/dashboard/admin");
@@ -167,7 +167,7 @@ export default function LoginPage() {
             </div>
 
             <div className="text-right">
-              <Link href="/forgot-password" className="text-sm text-primary hover:text-primary/80">
+              <Link href="/forgot-password" prefetch={false} className="text-sm text-primary hover:text-primary/80">
                 Forgot password?
               </Link>
             </div>
@@ -179,7 +179,7 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-gray-600">
             Do not have an account?{" "}
-            <Link href="/signup" className="font-medium text-primary hover:text-primary/80">
+            <Link href="/signup" prefetch={false} className="font-medium text-primary hover:text-primary/80">
               Sign up
             </Link>
           </p>

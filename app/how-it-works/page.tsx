@@ -61,9 +61,8 @@ export default function HowItWorksPage() {
           {steps.map((step, index) => (
             <div
               key={step.step}
-              className={`flex flex-col lg:flex-row items-center gap-12 ${
-                index % 2 === 1 ? "lg:flex-row-reverse" : ""
-              }`}
+              className={`flex flex-col lg:flex-row items-center gap-12 ${index % 2 === 1 ? "lg:flex-row-reverse" : ""
+                }`}
             >
               <div className="flex-1">
                 <div className="flex items-center mb-4">
@@ -95,7 +94,7 @@ export default function HowItWorksPage() {
       <div className="bg-white py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
-            Why Choose RentSquare?
+            Why Choose RentSquire?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {benefits.map((benefit) => (
@@ -116,7 +115,7 @@ export default function HowItWorksPage() {
             Join thousands of happy customers who found their perfect look
           </p>
           <div className="mt-8">
-            <Link href="/categories">
+            <Link href="/categories" prefetch={false}>
               <Button size="lg" variant="secondary" className="bg-white text-rose-600 hover:bg-gray-100">
                 Browse Collection
                 <ArrowRight className="ml-2 h-5 w-5" />

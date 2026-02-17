@@ -35,7 +35,7 @@ export function HowItWorks() {
             <div className="max-w-7xl mx-auto px-4 md:px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <span className="text-secondary font-bold tracking-widest uppercase text-sm mb-2 block">Simple Process</span>
-                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">How RentSquare Works</h2>
+                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">How RentSquire Works</h2>
                     <p className="text-black text-lg">Rent your dream outfit in 4 simple steps and save up to 90% on retail prices.</p>
                 </div>
 

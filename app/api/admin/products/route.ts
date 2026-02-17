@@ -93,8 +93,8 @@ export async function POST(request: Request) {
         vendor = await prisma.vendor.create({
           data: {
             userId: systemUser.id,
-            businessName: "RentSquare Official",
-            businessSlug: "rentsquare-official",
+            businessName: "RentSquire Official",
+            businessSlug: "rentsquire-official",
             status: "APPROVED",
           },
         });

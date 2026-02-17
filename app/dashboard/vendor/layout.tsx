@@ -25,7 +25,7 @@ export default function VendorDashboardLayout({
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Mobile Header for Sidebar Toggle */}
                 <div className="lg:hidden p-4 bg-white border-b border-gray-200 flex items-center justify-between">
-                    <span className="font-bold text-gray-900">RentSquare Vender</span>
+                    <span className="font-bold text-gray-900">RentSquire Vendor</span>
                     <button onClick={() => setSidebarOpen(true)} className="p-2 text-gray-600">
                         <span className="material-symbols-outlined">menu</span>
                     </button>

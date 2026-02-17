@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,36 +13,22 @@ interface Brand {
 }
 
 export function FeaturedBrands() {
-    const [brands, setBrands] = useState<Brand[]>([]);
+    const { data: brands = [] } = useQuery<Brand[]>({
+        queryKey: ['featured-brands'],
+        queryFn: async () => {
+            const res = await fetch('/api/brands?featured=true&active=true');
+            if (!res.ok) throw new Error('Failed to fetch brands');
+            const data = await res.json();
+            return data.brands || [];
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+
     const [emblaRef] = useEmblaCarousel({
         align: 'start',
         containScroll: 'trimSnaps',
         dragFree: true
     });
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const fetchBrands = async () => {
-            try {
-                const res = await fetch('/api/brands?featured=true&active=true');
-                if (res.ok && isMounted) {
-                    const data = await res.json();
-                    if (data.brands && data.brands.length > 0) {
-                        setBrands(data.brands);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching brands:', error);
-            }
-        };
-
-        fetchBrands();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
 
     return (
         <section className="py-12 bg-white">
@@ -59,7 +46,7 @@ export function FeaturedBrands() {
                     <div className="flex -ml-4 md:-ml-8">
                         {brands.map((brand, index) => (
                             <div key={brand.id} className="flex-[0_0_auto] pl-4 md:pl-8">
-                                <Link href={`/brand/${brand.name.toLowerCase()}`} className="group flex flex-col items-center gap-3">
+                                <Link href={`/brand/${brand.name.toLowerCase()}`} prefetch={false} className="group flex flex-col items-center gap-3">
                                     <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300 relative">
                                         <img
                                             src={brand.logo}

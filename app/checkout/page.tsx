@@ -83,9 +83,9 @@ export default function CheckoutPage() {
       const orderPromises = items.map(async (item) => {
         const rentalDays = item.rentalStart && item.rentalEnd
           ? Math.ceil(
-              (new Date(item.rentalEnd).getTime() - new Date(item.rentalStart).getTime()) /
-                (1000 * 60 * 60 * 24)
-            )
+            (new Date(item.rentalEnd).getTime() - new Date(item.rentalStart).getTime()) /
+            (1000 * 60 * 60 * 24)
+          )
           : 1;
 
         const orderNumber = `RS${Date.now()}${Math.random().toString(36).substring(2, 7)}`.toUpperCase();
@@ -176,19 +176,17 @@ export default function CheckoutPage() {
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  step >= s
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${step >= s
                     ? "bg-rose-600 text-white"
                     : "bg-gray-200 text-gray-500"
-                }`}
+                  }`}
               >
                 {s}
               </div>
               {s < 3 && (
                 <div
-                  className={`w-20 h-1 mx-2 ${
-                    step > s ? "bg-rose-600" : "bg-gray-200"
-                  }`}
+                  className={`w-20 h-1 mx-2 ${step > s ? "bg-rose-600" : "bg-gray-200"
+                    }`}
                 />
               )}
             </div>
@@ -217,11 +215,10 @@ export default function CheckoutPage() {
                     {addresses.map((address) => (
                       <label
                         key={address.id}
-                        className={`block p-4 border rounded-lg cursor-pointer transition-colors ${
-                          selectedAddress === address.id
+                        className={`block p-4 border rounded-lg cursor-pointer transition-colors ${selectedAddress === address.id
                             ? "border-rose-600 bg-rose-50"
                             : "border-gray-200 hover:border-gray-300"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start gap-3">
                           <input
@@ -288,11 +285,10 @@ export default function CheckoutPage() {
 
                 <div className="space-y-4">
                   <label
-                    className={`block p-4 border rounded-lg cursor-pointer transition-colors ${
-                      paymentMethod === "card"
+                    className={`block p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === "card"
                         ? "border-rose-600 bg-rose-50"
                         : "border-gray-200 hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <input
@@ -310,11 +306,10 @@ export default function CheckoutPage() {
                   </label>
 
                   <label
-                    className={`block p-4 border rounded-lg cursor-pointer transition-colors ${
-                      paymentMethod === "cod"
+                    className={`block p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === "cod"
                         ? "border-rose-600 bg-rose-50"
                         : "border-gray-200 hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <input
@@ -477,7 +472,7 @@ export default function CheckoutPage() {
               <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <ShieldCheck className="h-4 w-4 text-green-600" />
-                  <span>Secure checkout powered by RentSquare</span>
+                  <span>Secure checkout powered by RentSquire</span>
                 </div>
               </div>
             </div>

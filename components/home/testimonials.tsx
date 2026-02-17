@@ -15,7 +15,7 @@ const testimonials = [
         name: "Rahul Verma",
         role: "Software Engineer",
         image: "https://randomuser.me/api/portraits/men/32.jpg",
-        content: "Needed a Sherwani for my cousin's wedding urgently. RentSquare delivered it within 24 hours, perfectly fitted. Highly recommended!",
+        content: "Needed a Sherwani for my cousin's wedding urgently. RentSquire delivered it within 24 hours, perfectly fitted. Highly recommended!",
         rating: 5
     },
     {
