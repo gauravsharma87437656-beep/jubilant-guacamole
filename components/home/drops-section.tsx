@@ -154,7 +154,7 @@ export function DropsSection() {
 
             <div className="container mx-auto px-4 relative z-10">
                 {/* Header */}
-                <div className="text-center mb-16">
+                <div className="text-center mb-8">
                     <div className="relative inline-block">
                         <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter"
                             style={{
@@ -175,7 +175,7 @@ export function DropsSection() {
 
                 {/* 3D Carousel */}
                 <div className="relative max-w-[1400px] mx-auto mb-2 -mx-4 md:mx-auto">
-                    <div className="overflow-hidden pt-32 pb-20" ref={emblaRef} style={{ perspective: '1000px' }}>
+                    <div className="overflow-hidden pt-10 pb-10" ref={emblaRef} style={{ perspective: '1000px' }}>
                         <div className="flex items-center" style={{ transformStyle: 'preserve-3d' }}>
                             {products.map((product, index) => {
                                 const slideStyle = getSlideStyle(index);
