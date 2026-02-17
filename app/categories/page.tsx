@@ -33,7 +33,9 @@ interface Category {
   };
 }
 
-export default function CategoriesPage() {
+import { Suspense } from "react";
+
+function CategoriesContent() {
   const searchParams = useSearchParams();
   const search = searchParams.get("search");
 
@@ -220,5 +222,17 @@ export default function CategoriesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CategoriesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+      </div>
+    }>
+      <CategoriesContent />
+    </Suspense>
   );
 }
