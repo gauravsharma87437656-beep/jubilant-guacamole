@@ -2,16 +2,44 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
+import { rateLimit, getIP } from "@/lib/rate-limit";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const ip = getIP(req);
+    // Limit to 3 requests per hour for forgot password to prevent abuse
+    const { isLimited } = rateLimit(ip, 3, 60 * 60 * 1000);
+
+    if (isLimited) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    const { email, captchaToken } = await req.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
+
+    // Optional: Validate Captcha if token is provided
+    // This is a placeholder for when you add Cloudflare Turnstile or Google reCAPTCHA
+    /*
+    if (process.env.CAPTCHA_SECRET_KEY) {
+      const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `secret=${process.env.CAPTCHA_SECRET_KEY}&response=${captchaToken}`,
+      });
+      const data = await response.json();
+      if (!data.success) {
+        return NextResponse.json({ error: "Invalid captcha" }, { status: 400 });
+      }
+    }
+    */
 
     // Find user by email
     const user = await prisma.user.findUnique({
