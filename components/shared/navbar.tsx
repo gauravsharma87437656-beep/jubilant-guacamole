@@ -188,7 +188,14 @@ export function Navbar() {
 
             {/* Cart Icon - Moved before Sign In for Desktop, next to Menu on Mobile */}
             <button
-              onClick={toggleCart}
+              onClick={() => {
+                if (pathname === "/cart") return;
+                if (pathname === "/checkout") {
+                  router.push("/cart");
+                  return;
+                }
+                toggleCart();
+              }}
               className="relative p-2 text-black hover:text-gray-900 cursor-pointer order-3 md:order-2"
             >
               <span className="sr-only">Cart</span>

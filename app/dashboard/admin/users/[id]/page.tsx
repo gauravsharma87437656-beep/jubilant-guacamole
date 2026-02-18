@@ -99,8 +99,8 @@ export default function AdminUserDetailsPage() {
                             <p className="text-sm text-gray-500 mb-4">{user.email}</p>
 
                             <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-6 ${user.role === "ADMIN" ? "bg-rose-100 text-rose-600" :
-                                    user.role === "VENDOR" ? "bg-purple-100 text-purple-600" :
-                                        "bg-blue-100 text-blue-600"
+                                user.role === "VENDOR" ? "bg-purple-100 text-purple-600" :
+                                    "bg-blue-100 text-blue-600"
                                 }`}>
                                 {user.role}
                             </div>
@@ -139,7 +139,7 @@ export default function AdminUserDetailsPage() {
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-500">Status</span>
                                     <span className={`font-medium ${user.vendor.status === 'APPROVED' ? 'text-green-600' :
-                                            user.vendor.status === 'PENDING' ? 'text-yellow-600' : 'text-gray-900'
+                                        user.vendor.status === 'PENDING' ? 'text-yellow-600' : 'text-gray-900'
                                         }`}>
                                         {user.vendor.status}
                                     </span>
@@ -209,14 +209,14 @@ export default function AdminUserDetailsPage() {
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${rental.status === 'COMPLETED' || rental.status === 'DELIVERED' ? 'bg-green-100 text-green-600' :
-                                                                rental.status === 'CANCELLED' ? 'bg-red-100 text-red-600' :
-                                                                    'bg-blue-100 text-blue-600'
+                                                            rental.status === 'CANCELLED' ? 'bg-red-100 text-red-600' :
+                                                                'bg-blue-100 text-blue-600'
                                                             }`}>
                                                             {rental.status}
                                                         </span>
                                                     </td>
                                                     <td className="px-4 py-3 text-right text-gray-900 font-medium">
-                                                        ${Number(rental.totalAmount).toFixed(2)}
+                                                        ₹{Number(rental.totalAmount).toFixed(2)}
                                                     </td>
                                                 </tr>
                                             ))}

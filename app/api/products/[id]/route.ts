@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { RentalStatus } from "@prisma/client";
 
 export async function GET(
   request: Request,
@@ -7,6 +8,8 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    const now = new Date();
 
     const includeOptions = {
       vendor: {
@@ -37,6 +40,43 @@ export async function GET(
           isAvailable: true,
         },
       },
+      blockDates: {
+        where: {
+          endDate: { gte: now },
+        },
+        select: {
+          startDate: true,
+          endDate: true,
+          reason: true,
+        },
+      },
+      rentals: {
+        where: {
+          rental: {
+            is: {
+              rentalEndDate: { gte: now },
+              status: {
+                in: [
+                  RentalStatus.PENDING,
+                  RentalStatus.CONFIRMED,
+                  RentalStatus.SHIPPED,
+                  RentalStatus.DELIVERED,
+                  RentalStatus.ACTIVE,
+                ],
+              },
+            },
+          },
+        },
+        select: {
+          rental: {
+            select: {
+              rentalStartDate: true,
+              rentalEndDate: true,
+              status: true,
+            },
+          },
+        },
+      },
     };
 
     // Try to find by ID first, then by slug
@@ -63,7 +103,20 @@ export async function GET(
     prisma.product.update({
       where: { id: product.id },
       data: { viewCount: { increment: 1 } },
-    }).catch(() => {});
+    }).catch(() => { });
+
+    // Build booked date ranges from active rentals
+    const bookedDates = product.rentals.map((ri: { rental: { rentalStartDate: Date; rentalEndDate: Date } }) => ({
+      startDate: ri.rental.rentalStartDate.toISOString(),
+      endDate: ri.rental.rentalEndDate.toISOString(),
+    }));
+
+    // Build blocked date ranges
+    const blockedDates = product.blockDates.map((bd: { startDate: Date; endDate: Date; reason: string | null }) => ({
+      startDate: bd.startDate.toISOString(),
+      endDate: bd.endDate.toISOString(),
+      reason: bd.reason,
+    }));
 
     const transformedProduct = {
       id: product.id,
@@ -81,6 +134,8 @@ export async function GET(
       brand: product.brand,
       category: product.category,
       variants: product.variants,
+      bookedDates,
+      blockedDates,
     };
 
     return NextResponse.json({ product: transformedProduct });

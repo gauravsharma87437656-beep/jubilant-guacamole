@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useCartStore } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, CreditCard, Truck, ShieldCheck } from "lucide-react";
+import { differenceInDays } from "date-fns";
 
 interface Address {
   id: string;
@@ -34,7 +35,12 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("card");
 
   const totalDeposit = getTotalDeposit();
-  const subtotal = items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => {
+    const days = item.rentalStart && item.rentalEnd
+      ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
+      : 1;
+    return sum + (item.dailyPrice * days * item.quantity);
+  }, 0);
   const platformFee = Math.round(subtotal * 0.05);
   const total = subtotal + totalDeposit + platformFee;
 
@@ -82,11 +88,8 @@ export default function CheckoutPage() {
       // Create rental orders for each item
       const orderPromises = items.map(async (item) => {
         const rentalDays = item.rentalStart && item.rentalEnd
-          ? Math.ceil(
-            (new Date(item.rentalEnd).getTime() - new Date(item.rentalStart).getTime()) /
-            (1000 * 60 * 60 * 24)
-          )
-          : 1;
+          ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
+          : 3;
 
         const orderNumber = `RS${Date.now()}${Math.random().toString(36).substring(2, 7)}`.toUpperCase();
 
@@ -177,8 +180,8 @@ export default function CheckoutPage() {
             <div key={s} className="flex items-center">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${step >= s
-                    ? "bg-rose-600 text-white"
-                    : "bg-gray-200 text-gray-500"
+                  ? "bg-rose-600 text-white"
+                  : "bg-gray-200 text-gray-500"
                   }`}
               >
                 {s}
@@ -216,8 +219,8 @@ export default function CheckoutPage() {
                       <label
                         key={address.id}
                         className={`block p-4 border rounded-lg cursor-pointer transition-colors ${selectedAddress === address.id
-                            ? "border-rose-600 bg-rose-50"
-                            : "border-gray-200 hover:border-gray-300"
+                          ? "border-rose-600 bg-rose-50"
+                          : "border-gray-200 hover:border-gray-300"
                           }`}
                       >
                         <div className="flex items-start gap-3">
@@ -286,8 +289,8 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   <label
                     className={`block p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === "card"
-                        ? "border-rose-600 bg-rose-50"
-                        : "border-gray-200 hover:border-gray-300"
+                      ? "border-rose-600 bg-rose-50"
+                      : "border-gray-200 hover:border-gray-300"
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -307,8 +310,8 @@ export default function CheckoutPage() {
 
                   <label
                     className={`block p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === "cod"
-                        ? "border-rose-600 bg-rose-50"
-                        : "border-gray-200 hover:border-gray-300"
+                      ? "border-rose-600 bg-rose-50"
+                      : "border-gray-200 hover:border-gray-300"
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -370,12 +373,12 @@ export default function CheckoutPage() {
                           Size: {item.variantSize || "N/A"}
                         </p>
                         <p className="text-sm text-gray-500">
-                          ₹{item.dailyPrice}/day × {item.quantity}
+                          {item.dailyPrice} × {item.rentalStart && item.rentalEnd ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1) : 1} days × {item.quantity}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-gray-900">
-                          ₹{(item.dailyPrice * item.quantity).toFixed(2)}
+                          ₹{(item.dailyPrice * (item.rentalStart && item.rentalEnd ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1) : 1) * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -432,16 +435,21 @@ export default function CheckoutPage() {
               </h2>
 
               <div className="space-y-3 mb-4">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-gray-600 truncate max-w-[150px]">
-                      {item.productName}
-                    </span>
-                    <span className="text-gray-900">
-                      ₹{(item.dailyPrice * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+                {items.map((item) => {
+                  const days = item.rentalStart && item.rentalEnd
+                    ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
+                    : 1;
+                  return (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <span className="text-gray-600 truncate max-w-[150px]">
+                        {item.productName}
+                      </span>
+                      <span className="text-gray-900">
+                        ₹{(item.dailyPrice * days * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="border-t pt-4 space-y-2">

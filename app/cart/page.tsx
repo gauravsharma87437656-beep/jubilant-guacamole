@@ -2,28 +2,246 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, ShoppingBag, ArrowRight, Heart, ArrowLeft } from "lucide-react";
-import { useCartStore } from "@/store/cart";
+import { Trash2, ShoppingBag, ArrowRight, Heart, ArrowLeft, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { useCartStore, CartItem } from "@/store/cart";
 import { useSession } from "next-auth/react";
+import { RentalCalendar } from "@/components/product/rental-calendar";
+import { addDays, differenceInDays } from "date-fns";
+
+function CartItemCard({ item }: { item: CartItem }) {
+  const { removeItem, moveToWishlist, updateRentalDates, updateQuantity } = useCartStore();
+  const [showCalendar, setShowCalendar] = useState(false);
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to calendar when opened
+  useEffect(() => {
+    if (showCalendar && calendarRef.current) {
+      setTimeout(() => {
+        calendarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300); // Wait for transition
+    }
+  }, [showCalendar]);
+
+  // Calculate rental days from start/end dates
+  const rentalDays = item.rentalStart && item.rentalEnd
+    ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
+    : 3;
+
+  const [localRentalDays, setLocalRentalDays] = useState(rentalDays);
+  const [localStartDate, setLocalStartDate] = useState<Date | null>(
+    item.rentalStart ? new Date(item.rentalStart) : null
+  );
+
+  const handleDateSelect = (date: Date) => {
+    setLocalStartDate(date);
+    const endDate = addDays(date, localRentalDays - 1);
+    updateRentalDates(item.productId, date, endDate, item.variantId);
+
+    // Auto-hide calendar after a short delay
+    setTimeout(() => {
+      setShowCalendar(false);
+    }, 1500);
+  };
+
+  const handleRentalDaysChange = (days: number) => {
+    const newDays = Math.max(1, days);
+    setLocalRentalDays(newDays);
+    if (localStartDate) {
+      const endDate = addDays(localStartDate, newDays - 1);
+      updateRentalDates(item.productId, localStartDate, endDate, item.variantId);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow p-6">
+      <div className="flex gap-4">
+        <Link href={`/product/${item.productId}`} className="flex-shrink-0">
+          <div className="w-24 h-32 bg-gray-200 rounded-md overflow-hidden">
+            <img
+              src={item.productImage}
+              alt={item.productName}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </Link>
+        <div className="flex-1">
+          <div className="flex justify-between">
+            <div>
+              <Link href={`/product/${item.productId}`}>
+                <h3 className="font-semibold text-gray-900 hover:text-rose-600">
+                  {item.productName}
+                </h3>
+              </Link>
+              {item.variantSize && (
+                <p className="text-sm text-gray-700 font-medium">Size: {item.variantSize}</p>
+              )}
+              {item.variantColor && (
+                <p className="text-sm text-gray-700 font-medium">Color: {item.variantColor}</p>
+              )}
+              {item.rentalStart && item.rentalEnd && (
+                <p className="text-sm text-emerald-700 font-semibold mt-1">
+                  📅 {new Date(item.rentalStart).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} → {new Date(item.rentalEnd).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => removeItem(item.productId, item.variantId)}
+              className="text-gray-400 hover:text-red-500"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Change Dates Button */}
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="mt-2 flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
+            <CalendarDays className="h-4 w-4" />
+            {showCalendar ? "Hide Calendar" : "Change Dates"}
+          </button>
+
+          <div className="mt-4 flex justify-between items-end">
+            <div>
+              <p className="text-sm text-gray-900 font-medium">₹{item.dailyPrice}/day</p>
+              <div className="flex items-center border-2 border-gray-300 rounded-md w-fit mt-2">
+                <button
+                  onClick={() =>
+                    updateQuantity(
+                      item.productId,
+                      Math.max(1, item.quantity - 1),
+                      item.variantId
+                    )
+                  }
+                  className="px-2 py-1 text-gray-900 hover:bg-gray-100 font-bold"
+                >
+                  -
+                </button>
+                <span className="px-3 py-1 text-sm font-bold border-x-2 border-gray-300 text-gray-900">{item.quantity}</span>
+                <button
+                  onClick={() =>
+                    updateQuantity(item.productId, item.quantity + 1, item.variantId)
+                  }
+                  className="px-2 py-1 text-gray-900 hover:bg-gray-100 font-bold"
+                >
+                  +
+                </button>
+              </div>
+              <p className="text-xs text-gray-700 font-medium mt-1.5">Deposit: ₹{item.depositAmount}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xl font-bold text-gray-900">
+                ₹{(item.dailyPrice * rentalDays * item.quantity).toFixed(2)}
+              </p>
+              <p className="text-xs text-gray-600 font-medium">+ ₹{item.depositAmount} deposit</p>
+            </div>
+          </div>
+
+          {/* Save for Later Button */}
+          <div className="mt-4 pt-4 border-t">
+            <button
+              onClick={() => moveToWishlist(item.productId, item.variantId)}
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-rose-600"
+            >
+              <Heart className="h-4 w-4" />
+              Save for Later
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Premium Expandable Calendar Section */}
+      <div ref={calendarRef} className={`grid transition-all duration-500 ease-in-out overflow-hidden ${showCalendar ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t' : 'grid-rows-[0fr] opacity-0'}`}>
+        <div className="min-h-0 space-y-5">
+          {/* Rental Duration Adjustment (Top of expandable section) */}
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <p className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Rent for how many days?</p>
+            <div className="flex items-center border-2 border-gray-200 bg-white rounded-lg w-fit overflow-hidden">
+              <button
+                onClick={() => handleRentalDaysChange(localRentalDays - 1)}
+                className="px-3 py-1.5 hover:bg-gray-50 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4 text-gray-600" />
+              </button>
+              <span className="px-5 py-1.5 font-bold text-gray-900 border-x-2 border-gray-200 min-w-[80px] text-center text-sm">{localRentalDays} days</span>
+              <button
+                onClick={() => handleRentalDaysChange(localRentalDays + 1)}
+                className="px-3 py-1.5 hover:bg-gray-50 transition-colors"
+              >
+                <ChevronRight className="h-4 w-4 text-gray-600" />
+              </button>
+            </div>
+          </div>
+
+          {/* Dual Date Display (Read-only style with calendar trigger) */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">Start Date</label>
+              <div className="px-4 py-2.5 border-2 border-rose-100 bg-rose-50/30 rounded-lg text-sm font-bold text-gray-900 flex items-center justify-between">
+                <span>{localStartDate ? localStartDate.toLocaleDateString("en-IN") : "Select Start"}</span>
+                <CalendarDays className="h-4 w-4 text-rose-400" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">End Date</label>
+              <div className="px-4 py-2.5 border-2 border-gray-100 bg-gray-50 rounded-lg text-sm font-bold text-gray-400 flex items-center justify-between">
+                <span>{localStartDate ? addDays(localStartDate, localRentalDays - 1).toLocaleDateString("en-IN") : "mm/dd/yyyy"}</span>
+                <CalendarDays className="h-4 w-4 text-gray-300" />
+              </div>
+            </div>
+          </div>
+
+          {/* Calendar Picker */}
+          <div className="p-3 bg-white border border-gray-100 rounded-xl shadow-sm">
+            <RentalCalendar
+              bookedDates={[]}
+              blockedDates={[]}
+              selectedDate={localStartDate}
+              rentalDays={localRentalDays}
+              onDateSelect={handleDateSelect}
+            />
+          </div>
+
+          {/* Mini Price Summary for this item */}
+          <div className="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-emerald-700 font-medium">Rental Breakdown</span>
+              <span className="font-bold text-emerald-900">{localRentalDays} days × ₹{item.dailyPrice} = ₹{localRentalDays * item.dailyPrice}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CartPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const {
     items,
     wishlist,
-    removeItem,
     getTotalDeposit,
     getTotalRentals,
     clearCart,
-    moveToWishlist,
     moveToCart,
     removeFromWishlist,
   } = useCartStore();
 
   const totalDeposit = getTotalDeposit();
   const rentalCount = getTotalRentals();
+
+  const subtotal = items.reduce((sum, item) => {
+    const days = item.rentalStart && item.rentalEnd
+      ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
+      : 0;
+    return sum + (item.dailyPrice * days * item.quantity);
+  }, 0);
+
+  const platformFee = Math.round(subtotal * 0.05);
+  const total = subtotal + totalDeposit + platformFee;
 
   const handleCheckout = () => {
     if (status === "unauthenticated") {
@@ -56,7 +274,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/categories" className="text-gray-500 hover:text-gray-700">
+          <Link href="/" className="text-gray-500 hover:text-gray-700">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
@@ -75,71 +293,7 @@ export default function CartPage() {
               </div>
             ) : (
               items.map((item) => (
-                <div key={item.id} className="bg-white rounded-lg shadow p-6">
-                  <div className="flex gap-4">
-                    <Link href={`/product/${item.productId}`} className="flex-shrink-0">
-                      <div className="w-24 h-32 bg-gray-200 rounded-md overflow-hidden">
-                        <img
-                          src={item.productImage}
-                          alt={item.productName}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </Link>
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <div>
-                          <Link href={`/product/${item.productId}`}>
-                            <h3 className="font-semibold text-gray-900 hover:text-rose-600">
-                              {item.productName}
-                            </h3>
-                          </Link>
-                          {item.variantSize && (
-                            <p className="text-sm text-gray-500">Size: {item.variantSize}</p>
-                          )}
-                          {item.variantColor && (
-                            <p className="text-sm text-gray-500">Color: {item.variantColor}</p>
-                          )}
-                          <p className="text-sm text-gray-500">
-                            {item.rentalStart && item.rentalEnd
-                              ? `${new Date(item.rentalStart).toLocaleDateString()} - ${new Date(
-                                  item.rentalEnd
-                                ).toLocaleDateString()}`
-                              : "Select dates"}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => removeItem(item.productId, item.variantId)}
-                          className="text-gray-400 hover:text-red-500"
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </button>
-                      </div>
-                      <div className="mt-4 flex justify-between items-end">
-                        <div>
-                          <p className="text-sm text-gray-500">₹{item.dailyPrice}/day</p>
-                          <p className="text-xs text-gray-500">Deposit: ₹{item.depositAmount}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">
-                            ₹{(item.dailyPrice * item.quantity).toFixed(2)}
-                          </p>
-                          <p className="text-xs text-gray-500">+ ₹{item.depositAmount} deposit</p>
-                        </div>
-                      </div>
-                      {/* Save for Later Button */}
-                      <div className="mt-4 pt-4 border-t">
-                        <button
-                          onClick={() => moveToWishlist(item.productId, item.variantId)}
-                          className="flex items-center gap-2 text-sm text-gray-600 hover:text-rose-600"
-                        >
-                          <Heart className="h-4 w-4" />
-                          Save for Later
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <CartItemCard key={item.id} item={item} />
               ))
             )}
 
@@ -212,24 +366,28 @@ export default function CartPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow p-6 sticky top-4">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
-              
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-gray-600">
+
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-gray-700 font-medium">
                   <span>Subtotal ({rentalCount} items)</span>
-                  <span>₹{(items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0)).toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-gray-700 font-medium">
                   <span>Deposit</span>
                   <span>₹{totalDeposit.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Delivery</span>
-                  <span className="text-green-600">Free</span>
+                <div className="flex justify-between text-gray-700 font-medium">
+                  <span>Platform Fee (5%)</span>
+                  <span>₹{platformFee.toFixed(2)}</span>
                 </div>
-                <div className="border-t pt-2 mt-2">
-                  <div className="flex justify-between font-bold text-gray-900">
+                <div className="flex justify-between text-gray-700 font-medium">
+                  <span>Delivery</span>
+                  <span className="text-emerald-600 font-bold">Free</span>
+                </div>
+                <div className="border-t border-gray-200 pt-3 mt-3">
+                  <div className="flex justify-between text-xl font-bold text-gray-900">
                     <span>Total</span>
-                    <span>₹{(items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0) + totalDeposit).toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -239,7 +397,7 @@ export default function CartPage() {
               </div>
 
               <Button
-                className="w-full bg-rose-600 hover:bg-rose-700"
+                className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold h-14 text-lg"
                 size="lg"
                 onClick={handleCheckout}
                 disabled={items.length === 0}
@@ -247,8 +405,8 @@ export default function CartPage() {
                 {status === "loading"
                   ? "Loading..."
                   : status === "unauthenticated"
-                  ? "Sign In to Checkout"
-                  : "Proceed to Checkout"}
+                    ? "Sign In to Checkout"
+                    : "Proceed to Checkout"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
 
