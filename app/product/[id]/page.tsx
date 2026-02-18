@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, Truck, Shield, Calendar, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Star, Truck, Shield, Calendar, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { RentalCalendar } from "@/components/product/rental-calendar";
 import { addDays } from "date-fns";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface DateRange {
   startDate: string;
@@ -48,14 +49,38 @@ export default function ProductPage() {
   const [rentalStartDate, setRentalStartDate] = useState<Date | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const bookingRef = useRef<HTMLDivElement>(null);
   const addItem = useCartStore((state) => state.addItem);
 
-  // Auto-scroll to calendar when opened
+  // Embla carousel for mobile images
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+    align: 'start',
+    containScroll: 'trimSnaps'
+  });
+
+  // Update selected image when carousel scrolls
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on('select', () => {
+      setSelectedImage(emblaApi.selectedScrollSnap());
+    });
+  }, [emblaApi]);
+
+  // Handle selected image change (from thumbnails)
+  useEffect(() => {
+    if (emblaApi) emblaApi.scrollTo(selectedImage);
+  }, [selectedImage, emblaApi]);
+
+  // Auto-scroll to calendar/booking
   useEffect(() => {
     if (showCalendar && calendarRef.current) {
       setTimeout(() => {
         calendarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300); // Wait for transition
+      }, 300);
+    } else if (!showCalendar && bookingRef.current) {
+      // Scroll back up to the booking details when calendar hides
+      bookingRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [showCalendar]);
 
@@ -165,7 +190,7 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 pt-2 sm:pt-6 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link href="/categories" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
           <ChevronLeft className="h-4 w-4" /> Back to Categories
@@ -173,29 +198,48 @@ export default function ProductPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Images */}
-          <div>
-            <div className="aspect-[4/5] bg-white rounded-lg overflow-hidden mb-4 relative">
-              <Image
-                src={product.images[selectedImage]}
-                alt={product.name}
-                fill
-                priority
-                fetchPriority="high"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
+          <div className="space-y-4">
+            {/* Main Carousel Viewport */}
+            <div
+              className="overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100 cursor-grab active:cursor-grabbing"
+              ref={emblaRef}
+            >
+              <div className="flex">
+                {product.images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="flex-[0_0_100%] min-w-0 aspect-[4/5] relative bg-white"
+                  >
+                    <Image
+                      src={img}
+                      alt={product.name}
+                      fill
+                      priority={idx === 0}
+                      fetchPriority={idx === 0 ? "high" : "auto"}
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex gap-2">
+
+            {/* Thumbnails */}
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-0.5">
               {product.images.map((img, idx) => (
-                <button key={idx} onClick={() => setSelectedImage(idx)} className={`w-20 h-24 rounded-md overflow-hidden border-2 relative ${selectedImage === idx ? "border-rose-500" : "border-transparent"}`}>
+                <button
+                  key={idx}
+                  onClick={() => setSelectedImage(idx)}
+                  className={`flex-shrink-0 w-24 h-28 rounded-xl overflow-hidden border-2 transition-all duration-300 relative ${selectedImage === idx
+                    ? "border-rose-500 ring-4 ring-rose-50 shadow-lg scale-[1.02]"
+                    : "border-transparent opacity-50 hover:opacity-100"
+                    }`}
+                >
                   <Image
                     src={img}
                     alt=""
                     fill
-                    sizes="80px"
-                    priority={idx === 0}
-                    fetchPriority={idx === 0 ? "high" : "auto"}
-                    loading={idx === 0 ? "eager" : "lazy"}
+                    sizes="100px"
                     className="object-cover"
                   />
                 </button>
@@ -205,42 +249,10 @@ export default function ProductPage() {
 
           {/* Details */}
           <div>
-            <div className="mb-2">
-              <Link href={`/vendor/${product.vendor.businessSlug}`} className="text-sm text-rose-600 hover:underline">
-                {product.vendor.businessName}
-              </Link>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
 
-            <div className="flex items-center mt-2">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`h-5 w-5 ${i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
-                ))}
-              </div>
-              <span className="ml-2 text-gray-600">{product.rating} ({product.reviewCount} reviews)</span>
-            </div>
 
-            <div className="mt-6">
-              <div className="flex items-baseline gap-4">
-                <span className="text-3xl font-bold text-gray-900">₹{product.dailyPrice}</span>
-                <span className="text-gray-500">/day</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-1">Refundable deposit: ₹{product.depositAmount}</p>
-            </div>
 
-            {sizes.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-sm font-medium text-gray-900 mb-2">Select Size</h3>
-                <div className="flex gap-2">
-                  {sizes.map((size) => (
-                    <button key={size} onClick={() => setSelectedSize(size)} className={`px-4 py-2 border rounded-md font-medium ${selectedSize === size ? "border-rose-500 bg-rose-50 text-rose-700" : "border-gray-300 hover:border-gray-400"}`}>
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {colors.length > 0 && (
               <div className="mt-6">
@@ -256,67 +268,117 @@ export default function ProductPage() {
             )}
 
             {/* Premium Booking Section */}
-            <div className="mt-8 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+            <div ref={bookingRef} className="lg:mt-0 bg-white border border-gray-100 rounded-[2rem] p-5 sm:p-8 shadow-sm scroll-mt-24">
+              {/* Product Header inside Card */}
+              <div className="mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-gray-50">
+                <Link href={`/vendor/${product.vendor.businessSlug}`} className="text-xs sm:text-sm font-bold text-rose-500 uppercase tracking-wider hover:text-rose-600 transition-colors">
+                  {product.vendor.businessName}
+                </Link>
+                <h1 className="text-2xl sm:text-4xl font-black text-gray-900 mt-2 tracking-tight leading-tight">{product.name}</h1>
+                <div className="flex items-center mt-4">
+                  <div className="flex items-center bg-gray-900 px-3 py-1.5 rounded-full shadow-sm hover:scale-[1.02] transition-transform">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-600"}`} />
+                    ))}
+                    <span className="ml-2 text-xs font-black text-white">{product.rating}</span>
+                  </div>
+                  <span className="ml-3 text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest">({product.reviewCount} reviews)</span>
+                </div>
+              </div>
+
               {/* Pricing Header */}
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rental Price</p>
+              <div className="flex flex-wrap justify-between gap-4 mb-8">
+                <div className="space-y-1 min-w-[100px]">
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Rental Price</p>
                   <div className="flex items-baseline">
-                    <span className="text-2xl font-bold text-rose-600">₹{product.dailyPrice}</span>
-                    <span className="text-sm font-medium text-gray-400 ml-1">/day</span>
+                    <span className="text-xl sm:text-2xl font-bold text-rose-600">₹{product.dailyPrice}</span>
+                    <span className="text-xs font-medium text-gray-400 ml-1">/day</span>
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Original Price</p>
-                  <p className="text-xl font-medium text-gray-400 line-through">₹{Math.round(product.dailyPrice * 15)}</p>
+                <div className="space-y-1 min-w-[100px]">
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Original Price</p>
+                  <p className="text-lg sm:text-xl font-medium text-gray-400 line-through">₹{Math.round(product.dailyPrice * 15)}</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Security Deposit</p>
-                  <p className="text-xl font-bold text-gray-900">₹{product.depositAmount}</p>
-                </div>
-              </div>
-
-              {/* Rental Duration Adjustment (Moved above Date Selectors) */}
-              <div className="mb-6">
-                <p className="text-sm font-bold text-gray-700 mb-2 ml-1">Rent for how many days?</p>
-                <div className="flex items-center border-2 border-gray-100 rounded-xl w-fit overflow-hidden">
-                  <button onClick={() => setRentalDays(Math.max(1, rentalDays - 1))} className="px-4 py-2 hover:bg-gray-50 transition-colors">
-                    <ChevronLeft className="h-4 w-4 text-gray-600" />
-                  </button>
-                  <span className="px-6 py-2 font-bold text-gray-900 border-x-2 border-gray-100 min-w-[100px] text-center">{rentalDays} days</span>
-                  <button onClick={() => setRentalDays(rentalDays + 1)} className="px-4 py-2 hover:bg-gray-50 transition-colors">
-                    <ChevronRight className="h-4 w-4 text-gray-600" />
-                  </button>
+                <div className="space-y-1 min-w-[100px]">
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Security Deposit</p>
+                  <p className="text-lg sm:text-xl font-bold text-gray-900">₹{product.depositAmount}</p>
                 </div>
               </div>
 
-              {/* Date Selectors */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700 ml-1">Start Date</label>
-                  <button
-                    onClick={() => setShowCalendar(!showCalendar)}
-                    className="w-full flex items-center justify-between px-4 py-3 border-2 border-gray-100 rounded-xl hover:border-rose-200 transition-all text-sm font-medium text-gray-900"
-                  >
-                    <span>{rentalStartDate ? rentalStartDate.toLocaleDateString("en-IN") : "Select Date"}</span>
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                  </button>
+              {/* Booking Configuration Section (Reverted to Previous Layout) */}
+              <div className="space-y-6 mb-8">
+                {/* Duration & Size Selection Row */}
+                <div className="flex flex-col sm:flex-row gap-6">
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-gray-700 mb-2 ml-1">Rent for how many days?</p>
+                    <div className="flex items-center border border-gray-200 rounded-xl w-fit overflow-hidden bg-white shadow-sm">
+                      <button
+                        onClick={() => setRentalDays(Math.max(1, rentalDays - 1))}
+                        className="px-4 py-3 hover:bg-gray-50 transition-colors border-r border-gray-100"
+                      >
+                        <ChevronLeft className="h-4 w-4 text-gray-500" />
+                      </button>
+                      <span className="px-8 py-3 font-bold text-gray-900 min-w-[100px] text-center text-sm">
+                        {rentalDays} <span className="text-[10px] font-black text-gray-400 ml-1">DAYS</span>
+                      </span>
+                      <button
+                        onClick={() => setRentalDays(rentalDays + 1)}
+                        className="px-4 py-3 hover:bg-gray-50 transition-colors border-l border-gray-100"
+                      >
+                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {sizes.length > 0 && (
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-gray-700 mb-2 ml-1">Select Size</p>
+                      <div className="relative">
+                        <select
+                          value={selectedSize}
+                          onChange={(e) => setSelectedSize(e.target.value)}
+                          className="w-full px-4 py-3 font-bold text-gray-900 bg-white border border-gray-200 rounded-xl outline-none cursor-pointer hover:border-rose-200 transition-all appearance-none shadow-sm"
+                        >
+                          <option value="">Choose Size</option>
+                          {sizes.map((size) => (
+                            <option key={size} value={size}>{size}</option>
+                          ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                          <ChevronDown className="h-4 w-4" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700 ml-1">End Date</label>
-                  <div
-                    className="w-full h-[48px] flex items-center justify-between px-4 border-2 border-gray-50 bg-gray-50 rounded-xl text-sm font-medium text-gray-500 cursor-not-allowed"
-                  >
-                    <span>{rentalStartDate ? addDays(rentalStartDate, rentalDays - 1).toLocaleDateString("en-IN") : "mm/dd/yyyy"}</span>
-                    <Calendar className="h-4 w-4 text-gray-300" />
+
+                {/* Date Selectors Row (Two Columns) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-900 uppercase tracking-wider ml-1">Start Date</label>
+                    <button
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      className={`w-full flex items-center justify-between px-4 py-4 border border-gray-200 rounded-2xl transition-all text-sm font-bold ${showCalendar ? 'border-rose-300 ring-4 ring-rose-50' : 'hover:border-rose-200'
+                        } text-gray-900 bg-white shadow-sm`}
+                    >
+                      <span>{rentalStartDate ? rentalStartDate.toLocaleDateString("en-IN") : "Select Date"}</span>
+                      <Calendar className="h-5 w-5 text-gray-400" />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-900 uppercase tracking-wider ml-1">End Date</label>
+                    <div className="w-full flex items-center justify-between px-4 py-4 border border-gray-100 bg-gray-50/50 rounded-2xl text-sm font-bold text-gray-400 cursor-not-allowed">
+                      <span>{rentalStartDate ? addDays(rentalStartDate, rentalDays - 1).toLocaleDateString("en-IN") : "mm/dd/yyyy"}</span>
+                      <Calendar className="h-5 w-5 text-gray-300" />
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Expandable Calendar */}
-              <div ref={calendarRef} className={`grid transition-all duration-500 ease-in-out overflow-hidden ${showCalendar ? 'grid-rows-[1fr] opacity-100 mb-6' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div ref={calendarRef} className={`grid transition-all duration-500 ease-in-out overflow-hidden ${showCalendar ? 'grid-rows-[1fr] opacity-100 mb-8' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="min-h-0">
-                  <div className="p-4 bg-gray-50 rounded-2xl border-2 border-gray-100">
+                  <div className="p-3 sm:p-5 bg-gray-50 rounded-[2rem] border border-gray-100">
                     <RentalCalendar
                       bookedDates={product.bookedDates}
                       blockedDates={product.blockedDates}
@@ -324,7 +386,7 @@ export default function ProductPage() {
                       rentalDays={rentalDays}
                       onDateSelect={(date) => {
                         setRentalStartDate(date);
-                        setTimeout(() => setShowCalendar(false), 1000);
+                        setTimeout(() => setShowCalendar(false), 300);
                       }}
                     />
                   </div>

@@ -29,6 +29,7 @@ interface CartState {
   removeItem: (productId: string, variantId?: string) => void;
   updateQuantity: (productId: string, quantity: number, variantId?: string) => void;
   updateRentalDates: (productId: string, start: Date, end: Date, variantId?: string) => void;
+  updateVariant: (productId: string, oldVariantId: string | undefined, newVariantId: string, newSize: string, newColor?: string) => void;
   clearCart: () => void;
   toggleCart: () => void;
   setCartOpen: (open: boolean) => void;
@@ -97,6 +98,16 @@ export const useCartStore = create<CartState>()(
           items: state.items.map((i) =>
             i.productId === productId && i.variantId === variantId
               ? { ...i, rentalStart: start, rentalEnd: end }
+              : i
+          ),
+        }));
+      },
+
+      updateVariant: (productId, oldVariantId, newVariantId, newSize, newColor) => {
+        set((state) => ({
+          items: state.items.map((i) =>
+            i.productId === productId && i.variantId === oldVariantId
+              ? { ...i, variantId: newVariantId, variantSize: newSize, variantColor: newColor }
               : i
           ),
         }));
@@ -192,12 +203,12 @@ export const useCartStore = create<CartState>()(
       // Sync cart for user - call this on login
       syncCartForUser: (userId) => {
         const currentState = get();
-        
+
         // Get all carts from storage
         if (typeof window !== "undefined") {
           const storageKey = "rent-square-cart";
           const stored = localStorage.getItem(storageKey);
-          
+
           if (stored) {
             try {
               const parsed = JSON.parse(stored);

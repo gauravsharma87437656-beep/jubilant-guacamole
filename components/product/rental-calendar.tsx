@@ -135,7 +135,7 @@ export function RentalCalendar({
                 } else if (isPast) {
                     cellClass += "text-gray-300 cursor-not-allowed line-through ";
                 } else if (unavailable) {
-                    cellClass += "bg-red-50 text-red-400 cursor-not-allowed ";
+                    cellClass += "bg-red-100 text-red-500 cursor-not-allowed ";
                 } else if (isRangeStart) {
                     cellClass += "bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-200 cursor-pointer ";
                 } else if (isRangeEnd && inRange) {
@@ -154,20 +154,9 @@ export function RentalCalendar({
                             onClick={() => handleDateClick(currentDay)}
                             disabled={isPast || !isCurrentMonth || unavailable}
                             className={cellClass}
-                            title={unavailable ? reason : isToday ? "Today" : format(currentDay, "d MMM yyyy")}
                         >
                             {format(currentDay, "d")}
-                            {unavailable && isCurrentMonth && !isPast && (
-                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-                            )}
                         </button>
-                        {/* Tooltip for booked dates */}
-                        {unavailable && isCurrentMonth && !isPast && (
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
-                                {reason}
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
-                            </div>
-                        )}
                     </div>
                 );
                 day = addDays(day, 1);
@@ -242,10 +231,8 @@ export function RentalCalendar({
                         <span className="text-gray-600">Rental Period</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded-sm bg-red-50 border border-red-200 relative">
-                            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
-                        </span>
-                        <span className="text-gray-600">Booked</span>
+                        <span className="w-3 h-3 rounded-sm bg-red-100 border border-red-200" />
+                        <span className="text-gray-600">Reserved</span>
                     </div>
                 </div>
 

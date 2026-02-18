@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCartStore } from "@/store/cart";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Truck, ShieldCheck } from "lucide-react";
+import { ChevronLeft, CreditCard, Truck, ShieldCheck, ChevronDown, ChevronUp, Shield, Info, ArrowRight, ShoppingBag } from "lucide-react";
 import { differenceInDays } from "date-fns";
 
 interface Address {
@@ -33,6 +33,9 @@ export default function CheckoutPage() {
   const [processing, setProcessing] = useState(false);
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [showItemsBreakdown, setShowItemsBreakdown] = useState(false);
+  const [showDepositBreakdown, setShowDepositBreakdown] = useState(false);
+  const [showPlatformBreakdown, setShowPlatformBreakdown] = useState(false);
 
   const totalDeposit = getTotalDeposit();
   const subtotal = items.reduce((sum, item) => {
@@ -331,7 +334,11 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="mt-6 flex justify-between">
-                  <Button variant="outline" onClick={() => setStep(1)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(1)}
+                    className="border-gray-200 text-gray-900 font-bold hover:bg-gray-50 rounded-xl px-8"
+                  >
                     Back
                   </Button>
                   <Button
@@ -412,7 +419,11 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="mt-6 flex justify-between">
-                  <Button variant="outline" onClick={() => setStep(2)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(2)}
+                    className="border-gray-200 text-gray-900 font-bold hover:bg-gray-50 rounded-xl px-8"
+                  >
                     Back
                   </Button>
                   <Button
@@ -429,60 +440,121 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6 sticky top-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Order Summary
-              </h2>
+            <div className="bg-white rounded-[2rem] border border-gray-100 p-6 sm:p-8 sticky top-4 shadow-sm">
+              <h2 className="text-xl font-black text-gray-900 mb-6 tracking-tight">Order Summary</h2>
 
-              <div className="space-y-3 mb-4">
-                {items.map((item) => {
-                  const days = item.rentalStart && item.rentalEnd
-                    ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
-                    : 1;
-                  return (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-gray-600 truncate max-w-[150px]">
-                        {item.productName}
-                      </span>
-                      <span className="text-gray-900">
-                        ₹{(item.dailyPrice * days * item.quantity).toFixed(2)}
-                      </span>
+              <div className="space-y-4 mb-6">
+                {/* Subtotal with Breakdown */}
+                <div className="space-y-2">
+                  <div
+                    className="flex justify-between items-center text-gray-600 font-bold text-sm cursor-pointer hover:bg-gray-50 p-2 -m-2 rounded-xl transition-colors group"
+                    onClick={() => setShowItemsBreakdown(!showItemsBreakdown)}
+                  >
+                    <span className="flex items-center gap-1">
+                      Subtotal ({items.length})
+                      {showItemsBreakdown ? <ChevronUp className="h-4 w-4 text-gray-400 group-hover:text-rose-500" /> : <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-rose-500" />}
+                    </span>
+                    <span className="text-gray-900">₹{subtotal.toFixed(2)}</span>
+                  </div>
+                  {showItemsBreakdown && (
+                    <div className="pl-4 pr-1 py-3 space-y-2 border-l-2 border-rose-50 bg-rose-50/10 rounded-r-2xl">
+                      {items.map((item) => {
+                        const days = item.rentalStart && item.rentalEnd
+                          ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
+                          : 1;
+                        return (
+                          <div key={item.id} className="flex justify-between text-[11px] text-gray-500 leading-tight">
+                            <span className="flex-1 pr-4 line-clamp-1">{item.productName} ({item.quantity}×{days}d)</span>
+                            <span className="font-bold text-gray-700">₹{(item.dailyPrice * days * item.quantity).toFixed(0)}</span>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
+                  )}
+                </div>
 
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+                {/* Deposit with Breakdown */}
+                <div className="space-y-2">
+                  <div
+                    className="flex justify-between items-center text-gray-600 font-bold text-sm cursor-pointer hover:bg-gray-50 p-2 -m-2 rounded-xl transition-colors group"
+                    onClick={() => setShowDepositBreakdown(!showDepositBreakdown)}
+                  >
+                    <span className="flex items-center gap-1">
+                      Deposit
+                      {showDepositBreakdown ? <ChevronUp className="h-4 w-4 text-gray-400 group-hover:text-rose-500" /> : <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-rose-500" />}
+                    </span>
+                    <span className="text-gray-900">₹{totalDeposit.toFixed(2)}</span>
+                  </div>
+                  {showDepositBreakdown && (
+                    <div className="pl-4 pr-1 py-3 space-y-2 border-l-2 border-gray-100 bg-gray-50/50 rounded-r-2xl">
+                      {items.map((item) => (
+                        <div key={`dep-${item.id}`} className="flex justify-between text-[11px] text-gray-500">
+                          <span className="flex-1 pr-4 line-clamp-1">{item.productName} (×{item.quantity})</span>
+                          <span className="font-bold text-gray-700">₹{(item.depositAmount * item.quantity).toFixed(0)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Deposit (Refundable)</span>
-                  <span>₹{totalDeposit.toFixed(2)}</span>
+
+                {/* Platform Fee */}
+                <div className="space-y-2">
+                  <div
+                    className="flex justify-between items-center text-gray-600 font-bold text-sm cursor-pointer hover:bg-gray-50 p-2 -m-2 rounded-xl transition-colors group"
+                    onClick={() => setShowPlatformBreakdown(!showPlatformBreakdown)}
+                  >
+                    <span className="flex items-center gap-1">
+                      Platform Fee (5%)
+                      {showPlatformBreakdown ? <ChevronUp className="h-4 w-4 text-gray-400 group-hover:text-rose-500" /> : <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-rose-500" />}
+                    </span>
+                    <span className="text-gray-900">₹{platformFee.toFixed(2)}</span>
+                  </div>
+                  {showPlatformBreakdown && (
+                    <div className="pl-4 pr-1 py-2 space-y-1 border-l-2 border-emerald-50 bg-emerald-50/10 rounded-r-2xl">
+                      <div className="flex justify-between text-[10px] text-emerald-600 font-medium italic">
+                        <span>Includes secure transaction insurance</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Platform Fee</span>
-                  <span>₹{platformFee.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
+
+                <div className="flex justify-between text-gray-600 font-bold text-sm">
                   <span>Delivery</span>
-                  <span className="text-green-600">Free</span>
+                  <span className="text-emerald-600 font-black uppercase tracking-widest text-xs">Free</span>
                 </div>
-                <div className="border-t pt-2 mt-2">
-                  <div className="flex justify-between font-bold text-gray-900 text-lg">
-                    <span>Total</span>
-                    <span>₹{total.toFixed(2)}</span>
+
+                <div className="border-t border-gray-100 pt-5 mt-5">
+                  <div className="flex justify-between items-baseline mb-6">
+                    <span className="text-base font-black text-gray-900 uppercase tracking-widest">Total</span>
+                    <span className="text-3xl font-black text-rose-600 tracking-tighter">₹{Math.round(total).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <ShieldCheck className="h-4 w-4 text-green-600" />
-                  <span>Secure checkout powered by RentSquire</span>
+              <div className="mt-4 p-4 bg-gray-50/80 rounded-2xl border border-gray-100 mb-6">
+                <div className="flex items-start gap-3 text-xs text-gray-600">
+                  <ShieldCheck className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-gray-900">Secure Checkout</p>
+                    <p className="text-gray-500 leading-relaxed font-medium">Your payment is encrypted and security deposit is 100% refundable.</p>
+                  </div>
                 </div>
               </div>
+
+              {step === 3 ? (
+                <Button
+                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black h-16 rounded-2xl shadow-lg shadow-rose-100 transition-all active:scale-[0.98] text-lg"
+                  onClick={handlePlaceOrder}
+                  disabled={processing}
+                >
+                  {processing ? "Processing..." : "Place Order"}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              ) : (
+                <p className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  Complete steps to place order
+                </p>
+              )}
             </div>
           </div>
         </div>
