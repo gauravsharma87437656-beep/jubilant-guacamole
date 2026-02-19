@@ -49,7 +49,7 @@ export function FeaturedBrands() {
                         {brands.map((brand, index) => (
                             <div key={brand.id} className="flex-[0_0_auto] pl-4 md:pl-8">
                                 <Link href={`/brand/${brand.name.toLowerCase()}`} prefetch={false} className="group flex flex-col items-center gap-3">
-                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300 relative">
+                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300 relative">
                                         <img
                                             src={brand.logo}
                                             alt={brand.name}

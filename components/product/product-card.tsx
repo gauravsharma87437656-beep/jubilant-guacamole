@@ -46,7 +46,7 @@ export function ProductCard({ product }: { product: Product }) {
     return (
         <div className="group flex flex-col">
             {/* Product Image Card */}
-            <div className="relative aspect-[1/1.85] md:aspect-[1/1.6] rounded-[2.5rem] overflow-hidden bg-gray-50 mb-4 md:mb-5 block group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-shadow duration-500">
+            <div className="relative aspect-[1/1.85] md:aspect-[1/1.6] rounded-xl overflow-hidden bg-gray-50 mb-4 md:mb-5 block group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-shadow duration-500">
                 <Link href={`/product/${product.slug || product.id}`} className="absolute inset-0 z-0">
                     <Image
                         src={product.images[0]}
