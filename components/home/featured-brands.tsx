@@ -21,7 +21,9 @@ export function FeaturedBrands() {
             const data = await res.json();
             return data.brands || [];
         },
-        staleTime: 5 * 60 * 1000,
+        staleTime: 10 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
     });
 
     const [emblaRef] = useEmblaCarousel({
@@ -31,11 +33,11 @@ export function FeaturedBrands() {
     });
 
     return (
-        <section className="py-12 bg-white">
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <section className="pt-4 pb-12 bg-white">
+            <div className="w-full px-4 md:px-6">
                 <div className="flex justify-between items-center mb-8">
                     <h3 className="text-lg md:text-xl font-bold text-gray-800 uppercase tracking-widest text-left">
-                        Shop From Global Brands
+                        Shop From Brands
                     </h3>
                     <Link href="/brands" className="hidden md:flex items-center gap-2 text-xs font-semibold text-black hover:text-black transition-colors uppercase tracking-wider">
                         View all <ArrowRight className="w-3 h-3" />

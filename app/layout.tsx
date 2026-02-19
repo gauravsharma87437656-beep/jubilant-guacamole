@@ -3,9 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
+import { InstagramBanner } from "@/components/shared/instagram-banner";
 import { Providers } from "@/components/providers";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-import { CookieConsent } from "@/components/shared/cookie-consent";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
@@ -80,10 +80,10 @@ export default function RootLayout({
           <div className="flex min-h-screen flex-col">
             <Navbar />
             <main id="main-content" className="flex-1" role="main">{children}</main>
+            <InstagramBanner />
             <Footer />
           </div>
           <CartDrawer />
-          <CookieConsent />
           <Toaster />
         </Providers>
       </body>

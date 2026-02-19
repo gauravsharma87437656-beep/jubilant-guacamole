@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useState, useEffect, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Pagination } from "@/components/shared/pagination";
+import { ProductCard } from "@/components/product/product-card";
 
 interface Product {
   id: string;
@@ -241,8 +242,8 @@ function GenderPageContent() {
             <label key={option.value} className="flex items-center gap-3 cursor-pointer group">
               <div
                 className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${sortBy === option.value
-                    ? "border-rose-500 bg-rose-500 text-white"
-                    : "border-gray-300 group-hover:border-gray-400"
+                  ? "border-rose-500 bg-rose-500 text-white"
+                  : "border-gray-300 group-hover:border-gray-400"
                   }`}
               >
                 {sortBy === option.value && <div className="w-2 h-2 bg-white rounded-full" />}
@@ -260,8 +261,8 @@ function GenderPageContent() {
               />
               <span
                 className={`text-sm ${sortBy === option.value
-                    ? "text-gray-900 font-medium"
-                    : "text-gray-600 group-hover:text-gray-900"
+                  ? "text-gray-900 font-medium"
+                  : "text-gray-600 group-hover:text-gray-900"
                   }`}
               >
                 {option.label}
@@ -279,8 +280,8 @@ function GenderPageContent() {
             <label className="flex items-center gap-3 cursor-pointer group">
               <div
                 className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedOccasion === null
-                    ? "border-rose-500 bg-rose-500 text-white"
-                    : "border-gray-300"
+                  ? "border-rose-500 bg-rose-500 text-white"
+                  : "border-gray-300"
                   }`}
               >
                 {selectedOccasion === null && <Check className="w-3 h-3" />}
@@ -297,8 +298,8 @@ function GenderPageContent() {
               />
               <span
                 className={`text-sm ${selectedOccasion === null
-                    ? "text-gray-900 font-medium"
-                    : "text-gray-600 group-hover:text-gray-900"
+                  ? "text-gray-900 font-medium"
+                  : "text-gray-600 group-hover:text-gray-900"
                   }`}
               >
                 Any Occasion
@@ -308,8 +309,8 @@ function GenderPageContent() {
               <label key={occasion.id} className="flex items-center gap-3 cursor-pointer group">
                 <div
                   className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedOccasion === occasion.slug
-                      ? "border-rose-500 bg-rose-500 text-white"
-                      : "border-gray-300"
+                    ? "border-rose-500 bg-rose-500 text-white"
+                    : "border-gray-300"
                     }`}
                 >
                   {selectedOccasion === occasion.slug && <Check className="w-3 h-3" />}
@@ -327,8 +328,8 @@ function GenderPageContent() {
                 />
                 <span
                   className={`text-sm ${selectedOccasion === occasion.slug
-                      ? "text-gray-900 font-medium"
-                      : "text-gray-600 group-hover:text-gray-900"
+                    ? "text-gray-900 font-medium"
+                    : "text-gray-600 group-hover:text-gray-900"
                     }`}
                 >
                   {occasion.name}
@@ -381,8 +382,8 @@ function GenderPageContent() {
             <label key={rating} className="flex items-center gap-3 cursor-pointer group">
               <div
                 className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${minRating === rating
-                    ? "border-rose-500 bg-rose-500 text-white"
-                    : "border-gray-300"
+                  ? "border-rose-500 bg-rose-500 text-white"
+                  : "border-gray-300"
                   }`}
               >
                 {minRating === rating && <Check className="w-3 h-3" />}
@@ -437,7 +438,7 @@ function GenderPageContent() {
             }}
           />
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 relative z-10">
+        <div className="w-full px-4 md:px-8 py-10 md:py-16 relative z-10">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-white/60 mb-4">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
@@ -455,8 +456,8 @@ function GenderPageContent() {
               <Link
                 href="/categories/male"
                 className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${genderKey === "male"
-                    ? "bg-white text-gray-900 shadow-lg"
-                    : "bg-white/15 text-white hover:bg-white/25 backdrop-blur"
+                  ? "bg-white text-gray-900 shadow-lg"
+                  : "bg-white/15 text-white hover:bg-white/25 backdrop-blur"
                   }`}
               >
                 Men
@@ -464,8 +465,8 @@ function GenderPageContent() {
               <Link
                 href="/categories/female"
                 className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${genderKey === "female"
-                    ? "bg-white text-gray-900 shadow-lg"
-                    : "bg-white/15 text-white hover:bg-white/25 backdrop-blur"
+                  ? "bg-white text-gray-900 shadow-lg"
+                  : "bg-white/15 text-white hover:bg-white/25 backdrop-blur"
                   }`}
               >
                 Women
@@ -478,13 +479,13 @@ function GenderPageContent() {
       {/* Category Tabs */}
       {isGenderPage && (
         <section className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 md:px-8">
             <div className="flex items-center gap-1 overflow-x-auto py-3 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
               <button
                 onClick={() => handleCategorySelect(null)}
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${selectedCategory === null
-                    ? "bg-gray-900 text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-gray-900 text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 Shop All
@@ -494,8 +495,8 @@ function GenderPageContent() {
                   key={cat.id}
                   onClick={() => handleCategorySelect(cat.slug)}
                   className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${selectedCategory === cat.slug
-                      ? "bg-gray-900 text-white shadow-md"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    ? "bg-gray-900 text-white shadow-md"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                 >
                   {cat.name}
@@ -506,7 +507,7 @@ function GenderPageContent() {
         </section>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 md:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden flex justify-between items-center">
@@ -617,51 +618,7 @@ function GenderPageContent() {
                 {/* Products Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5">
                   {products.map((product) => (
-                    <Link
-                      key={product.id}
-                      href={`/product/${product.id}`}
-                      className="group bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1"
-                    >
-                      <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden">
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        />
-                        <div className="absolute top-2 left-2">
-                          {product.rating >= 4.5 && (
-                            <span className="bg-white/90 backdrop-blur text-[10px] md:text-xs font-bold px-1.5 py-0.5 md:px-2 md:py-1 rounded-full shadow-sm flex items-center gap-1">
-                              <Star className="w-2.5 h-2.5 md:w-3 md:h-3 fill-amber-400 text-amber-400" />
-                              {product.rating.toFixed(1)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="p-2 md:p-4 flex flex-col flex-1">
-                        <div className="text-[10px] md:text-xs text-gray-500 mb-1">
-                          {product.category?.name || product.brand?.name || ""}
-                        </div>
-                        <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1 line-clamp-1 group-hover:text-rose-500 transition-colors">
-                          {product.name}
-                        </h3>
-                        <div className="mt-auto pt-2 flex items-center justify-between">
-                          <div>
-                            <p className="text-[10px] md:text-xs text-gray-400 line-through">
-                              ₹{Math.round(product.dailyPrice * 1.2)}
-                            </p>
-                            <p className="font-black text-sm md:text-lg text-gray-900">
-                              ₹{product.dailyPrice}
-                              <span className="text-[10px] md:text-xs font-normal text-gray-500">/day</span>
-                            </p>
-                          </div>
-                          <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
-                            <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+                    <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
 

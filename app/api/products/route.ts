@@ -135,6 +135,7 @@ export async function GET(request: Request) {
       reviewCount: product.reviewCount,
       category: product.category,
       vendor: product.vendor,
+      vendorId: product.vendorId,
       brand: product.brand,
     }));
 
@@ -146,6 +147,10 @@ export async function GET(request: Request) {
         total,
         totalPages: Math.ceil(total / limit),
       },
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300',
+      }
     });
   } catch (error) {
     console.error("Error fetching products:", error);

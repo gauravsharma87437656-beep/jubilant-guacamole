@@ -38,7 +38,9 @@ export function HeroCarousel() {
             const data = await res.json();
             return data.banners || [];
         },
-        staleTime: 5 * 60 * 1000,
+        staleTime: 10 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
     });
 
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000, stopOnInteraction: false })]);
@@ -111,18 +113,18 @@ export function HeroCarousel() {
                             </div>
                             {/* Content Layer (separate from background blend mode) */}
                             <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-10">
-                                <span className="text-secondary font-bold tracking-[0.2em] uppercase mb-1 md:mb-4 text-[10px] md:text-base animate-fade-in-up drop-shadow-md">
+                                <span className="text-secondary font-bold tracking-[0.2em] uppercase mb-1 md:mb-4 text-[10px] md:text-sm animate-fade-in-up drop-shadow-md">
                                     {slide.subtitle}
                                 </span>
-                                <h2 className="text-white text-2xl md:text-6xl lg:text-8xl font-black max-w-5xl leading-tight mb-2 md:mb-8 animate-fade-in-up delay-100 drop-shadow-lg uppercase px-2">
+                                <h2 className="text-white text-xl md:text-4xl lg:text-6xl font-black max-w-5xl leading-tight mb-2 md:mb-8 animate-fade-in-up delay-100 drop-shadow-lg uppercase px-2">
                                     {slide.title}
                                 </h2>
                                 {slide.link ? (
-                                    <Link href={slide.link} prefetch={false} className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-4 py-2 md:px-8 md:py-4 rounded-full text-xs md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
+                                    <Link href={slide.link} prefetch={false} className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-4 py-2 md:px-8 md:py-4 rounded-full text-[10px] md:text-base transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
                                         Shop Collection
                                     </Link>
                                 ) : (
-                                    <button className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-4 py-2 md:px-8 md:py-4 rounded-full text-xs md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
+                                    <button className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-4 py-2 md:px-8 md:py-4 rounded-full text-[10px] md:text-base transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
                                         Shop Collection
                                     </button>
                                 )}
