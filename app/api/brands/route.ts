@@ -39,7 +39,11 @@ export async function GET(request: Request) {
       brands: transformedBrands,
     }, {
       headers: {
+<<<<<<< HEAD
         'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+=======
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
+>>>>>>> web-version
       }
     });
   } catch (error) {

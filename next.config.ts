@@ -28,7 +28,6 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
   },
-  output: "standalone",
   productionBrowserSourceMaps: false,
 };
 

@@ -34,7 +34,11 @@ export async function GET(request: Request) {
       banners: transformedBanners,
     }, {
       headers: {
+<<<<<<< HEAD
         'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=120',
+=======
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
+>>>>>>> web-version
       }
     });
   } catch (error) {

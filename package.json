@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "postinstall": "prisma generate",
-    "start": "next start -p $PORT",
+    "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {

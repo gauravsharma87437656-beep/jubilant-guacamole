@@ -99,11 +99,7 @@ export async function GET(
       );
     }
 
-    // Increment view count (fire and forget)
-    prisma.product.update({
-      where: { id: product.id },
-      data: { viewCount: { increment: 1 } },
-    }).catch(() => { });
+    // Removed viewCount increment to prevent row lock contention and DB crash under load
 
     // Build booked date ranges from active rentals
     const bookedDates = product.rentals.map((ri: { rental: { rentalStartDate: Date; rentalEndDate: Date } }) => ({
@@ -138,11 +134,9 @@ export async function GET(
       blockedDates,
     };
 
-    return NextResponse.json({
-      product: transformedProduct
-    }, {
+    return NextResponse.json({ product: transformedProduct }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5',
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300',
       }
     });
   } catch (error) {
