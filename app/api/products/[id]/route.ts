@@ -138,7 +138,13 @@ export async function GET(
       blockedDates,
     };
 
-    return NextResponse.json({ product: transformedProduct });
+    return NextResponse.json({
+      product: transformedProduct
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5',
+      }
+    });
   } catch (error) {
     console.error("Error fetching product:", error);
     return NextResponse.json(

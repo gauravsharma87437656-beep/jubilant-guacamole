@@ -30,6 +30,10 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       categories: transformedCategories,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      }
     });
   } catch (error) {
     console.error("Error fetching categories:", error);
