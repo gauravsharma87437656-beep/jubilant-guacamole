@@ -30,7 +30,11 @@ export async function GET(request: Request) {
             _count: undefined,
         }));
 
-        return NextResponse.json({ occasions: transformedOccasions });
+        return NextResponse.json({ occasions: transformedOccasions }, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
+            }
+        });
     } catch (error) {
         console.error("Error fetching occasions:", error);
         return NextResponse.json(

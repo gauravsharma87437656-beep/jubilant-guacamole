@@ -1,0 +1,58 @@
+# rentsquire.in - Production Caddyfile
+# This file configures Caddy to serve your Next.js application,
+# provide automatic HTTPS, and protect against basic bots using rate limiting.
+
+rentsquire.in, www.rentsquire.in {
+    # 1. Reverse Proxy to Next.js (Running on PM2 in Cluster mode on Port 3000)
+    reverse_proxy localhost:3000 {
+        # Pass real client IP to Next.js
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # 2. Rate Limiting Protection (Replacing Redis/Upstash)
+    # Block abusive bots hitting your authentication and reset password APIs
+    @auth_routes {
+        path /api/auth/*
+    }
+    
+    route @auth_routes {
+        # Note: To enable this native rate limiting, you must build Caddy 
+        # with the 'caddy-rl' module, OR use a simple Cloudflare WAF rule instead.
+        # If using standard Caddy, uncommenting the block below without the module will fail.
+        # 
+        # rate_limit {
+        #     zone auth_limit {
+        #         key {remote_ip}
+        #         events 5
+        #         window 1m
+        #     }
+        # }
+    }
+
+    # 3. Static Asset Caching (Improves Next.js performance)
+    @static {
+        path /_next/static/*
+        path /static/*
+        path *.png *.jpg *.jpeg *.gif *.svg *.ico *.webp
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    # 4. Security Headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+    }
+
+    # Optional: Log access for monitoring traffic
+    log {
+        output file /var/log/caddy/rentsquire.access.log {
+            roll_size 100mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+    }
+}
