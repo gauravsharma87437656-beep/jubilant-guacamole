@@ -47,7 +47,9 @@ export function DropsSection() {
             }
             return [];
         },
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 10 * 60 * 1000, // 10 minutes
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
     });
 
     const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -79,7 +81,7 @@ export function DropsSection() {
     // Show loading or placeholder when no products
     if (!activeProduct) {
         return (
-            <section className="py-20 relative overflow-hidden bg-white">
+            <section className="py-10 md:py-20 relative overflow-hidden bg-white">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
                         <div className="relative inline-block">
@@ -141,7 +143,7 @@ export function DropsSection() {
     };
 
     return (
-        <section className="py-20 relative overflow-hidden bg-white">
+        <section className="pt-10 pb-4 md:pt-20 md:pb-8 relative overflow-hidden bg-white">
             {/* Perspective Grid Background */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
                 style={{
@@ -152,7 +154,7 @@ export function DropsSection() {
                 }}
             ></div>
 
-            <div className="container mx-auto px-4 relative z-10">
+            <div className="w-full relative z-10">
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="relative inline-block">
@@ -174,7 +176,7 @@ export function DropsSection() {
                 </div>
 
                 {/* 3D Carousel */}
-                <div className="relative max-w-[1400px] mx-auto mb-2 -mx-4 md:mx-auto">
+                <div className="relative w-full mb-2">
                     <div className="overflow-hidden pt-10 pb-10" ref={emblaRef} style={{ perspective: '1000px' }}>
                         <div className="flex items-center" style={{ transformStyle: 'preserve-3d' }}>
                             {products.map((product, index) => {
@@ -186,7 +188,7 @@ export function DropsSection() {
                                         href={`/product/${product.slug || product.id}`}
                                         key={`${product.id}-${index}`}
                                         prefetch={false}
-                                        className="flex-[0_0_70%] md:flex-[0_0_40%] lg:flex-[0_0_25%] min-w-0 relative group cursor-pointer px-2 md:px-6"
+                                        className="flex-[0_0_50%] md:flex-[0_0_30%] lg:flex-[0_0_18%] min-w-0 relative group cursor-pointer px-2 md:px-4"
                                         style={{
                                             perspective: '1000px',
                                             zIndex: slideStyle.zIndex
@@ -244,19 +246,19 @@ export function DropsSection() {
 
                 {/* Product Details Card */}
                 {activeProduct && (
-                    <div className="max-w-sm mx-auto">
-                        <div className="bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-5 text-center relative overflow-hidden">
+                    <div className="max-w-[240px] md:max-w-sm mx-auto">
+                        <div className="bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-3 md:p-5 text-center relative overflow-hidden">
                             <div className="relative z-10 transition-all duration-300">
-                                <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
+                                <h3 className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1 truncate">
                                     {activeProduct.name}
                                 </h3>
-                                <p className="text-2xl font-black text-gray-900 mb-4">
+                                <p className="text-lg md:text-2xl font-black text-gray-900 mb-2 md:mb-4">
                                     ₹{activeProduct.price.toLocaleString('en-IN')}
                                 </p>
                                 <Link
                                     href={`/product/${activeProduct.slug || activeProduct.id}`}
                                     prefetch={false}
-                                    className="block w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-xs"
+                                    className="block w-full bg-black text-white font-bold py-2 md:py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-[10px] md:text-xs"
                                 >
                                     Explore
                                 </Link>

@@ -85,13 +85,13 @@ function CategoriesContent() {
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
       <div className="bg-gradient-to-r from-rose-500 to-pink-600 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 md:px-8">
           <h1 className="text-3xl font-bold text-white">All Categories</h1>
           <p className="mt-2 text-rose-100">Find the perfect outfit for any occasion</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 md:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <aside className="w-full lg:w-64 space-y-6" aria-label="Filters">

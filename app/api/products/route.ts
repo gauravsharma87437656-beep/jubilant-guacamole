@@ -135,6 +135,7 @@ export async function GET(request: Request) {
       reviewCount: product.reviewCount,
       category: product.category,
       vendor: product.vendor,
+      vendorId: product.vendorId,
       brand: product.brand,
     }));
 
@@ -148,7 +149,7 @@ export async function GET(request: Request) {
       },
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300',
       }
     });
   } catch (error) {

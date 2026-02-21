@@ -91,7 +91,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+      <nav className="w-full px-4 md:px-8 relative">
         <div className="flex h-16 items-center justify-between">
 
           {/* Logo & Brand */}
@@ -187,15 +187,9 @@ export function Navbar() {
             </div>
 
             {/* Cart Icon - Moved before Sign In for Desktop, next to Menu on Mobile */}
-            <button
-              onClick={() => {
-                if (pathname === "/cart") return;
-                if (pathname === "/checkout") {
-                  router.push("/cart");
-                  return;
-                }
-                toggleCart();
-              }}
+            {/* Cart Icon - Moved before Sign In for Desktop, next to Menu on Mobile */}
+            <Link
+              href="/cart"
               className="relative p-2 text-black hover:text-gray-900 cursor-pointer order-3 md:order-2"
             >
               <span className="sr-only">Cart</span>
@@ -205,7 +199,7 @@ export function Navbar() {
                   {cartCount}
                 </span>
               )}
-            </button>
+            </Link>
 
             {/* Profile Icon / Sign In Button - Moved to far right on Desktop, before Cart on Mobile */}
             {status === "loading" ? (

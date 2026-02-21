@@ -35,6 +35,10 @@ export async function GET() {
       totalRevenue: revenue._sum.totalAmount?.toNumber() || 0,
       openDisputes: disputes,
       pendingReviews: pendingVendors,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+      }
     });
   } catch (error) {
     console.error("Admin stats error:", error);

@@ -21,7 +21,9 @@ export function FeaturedBrands() {
             const data = await res.json();
             return data.brands || [];
         },
-        staleTime: 5 * 60 * 1000,
+        staleTime: 10 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
     });
 
     const [emblaRef] = useEmblaCarousel({
@@ -31,11 +33,11 @@ export function FeaturedBrands() {
     });
 
     return (
-        <section className="py-12 bg-white">
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <section className="pt-4 pb-12 bg-white">
+            <div className="w-full px-4 md:px-6">
                 <div className="flex justify-between items-center mb-8">
                     <h3 className="text-lg md:text-xl font-bold text-gray-800 uppercase tracking-widest text-left">
-                        Shop From Global Brands
+                        Shop From Brands
                     </h3>
                     <Link href="/brands" className="hidden md:flex items-center gap-2 text-xs font-semibold text-black hover:text-black transition-colors uppercase tracking-wider">
                         View all <ArrowRight className="w-3 h-3" />
@@ -47,7 +49,7 @@ export function FeaturedBrands() {
                         {brands.map((brand, index) => (
                             <div key={brand.id} className="flex-[0_0_auto] pl-4 md:pl-8">
                                 <Link href={`/brand/${brand.name.toLowerCase()}`} prefetch={false} className="group flex flex-col items-center gap-3">
-                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300 relative">
+                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300 relative">
                                         <img
                                             src={brand.logo}
                                             alt={brand.name}
