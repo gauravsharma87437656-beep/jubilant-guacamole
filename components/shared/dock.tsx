@@ -56,8 +56,9 @@ export function MobileDock() {
         }
     ]
     const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
+    const hideDock = isAuthPage || pathname === "/profile/settings" || pathname?.startsWith("/profile/orders") || pathname === "/profile/addresses" || pathname === "/profile/reviews";
 
-    if (isAuthPage) {
+    if (hideDock) {
         return null;
     }
 

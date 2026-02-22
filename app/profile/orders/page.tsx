@@ -107,17 +107,23 @@ export default function CustomerRentalsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <Link href="/profile" className="inline-flex items-center text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back
+    <div className="min-h-screen bg-gray-50 pb-4 md:pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-center pt-1 pb-4 relative">
+          <Link href="/profile" className="absolute left-0 text-gray-900 p-2 -ml-2">
+            <ArrowLeft className="h-6 w-6" />
           </Link>
+          <h1 className="text-[18px] font-bold text-gray-900 tracking-tight">My Orders</h1>
         </div>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Rentals</h1>
-          <p className="mt-2 text-gray-600">View and manage your active and past rentals</p>
+        {/* Desktop Header */}
+        <div className="hidden md:block mb-8">
+          <Link href="/profile" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">My Rentals</h1>
+          <p className="mt-2 text-base text-gray-500">View and manage your active and past rentals</p>
         </div>
 
         {loading ? (
@@ -136,100 +142,105 @@ export default function CustomerRentalsPage() {
         ) : (
           <div className="space-y-4">
             {rentals.map((rental) => (
-              <div key={rental.id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                {/* Order Header */}
-                <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <span className="text-sm text-gray-500">Order #</span>
-                      <span className="ml-1 font-medium text-gray-900">{rental.orderNumber}</span>
+              <Link key={rental.id} href={`/profile/orders/${rental.id}`} className="block">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                  {/* Order Header */}
+                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-start sm:items-center justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <span className="text-[13px] text-gray-500 font-medium">Order</span>
+                        <span className="sm:ml-1 text-[13px] sm:text-sm font-semibold text-gray-900"># {rental.orderNumber}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <span className="text-[13px] text-gray-500 font-medium">Placed on</span>
+                        <span className="sm:ml-1 text-[14px] sm:text-sm font-semibold text-gray-900">{formatDate(rental.createdAt)}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-sm text-gray-500">Placed on</span>
-                      <span className="ml-1 text-gray-900">{formatDate(rental.createdAt)}</span>
+                    <span className={`px-2 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase ${statusColors[rental.status] || "bg-gray-100 text-gray-800"}`}>
+                      {rental.status.replace(/_/g, " ")}
+                    </span>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className="p-4">
+                    <div className="space-y-4">
+                      {rental.items.map((item) => (
+                        <div key={item.id} className="flex gap-4">
+                          <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                            {item.productImage ? (
+                              <img
+                                src={item.productImage}
+                                alt={item.productName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="font-medium text-gray-900">
+                              {item.productName}
+                            </span>
+                            {item.variantSize && (
+                              <p className="text-sm text-gray-500">Size: {item.variantSize}</p>
+                            )}
+                            {item.variantColor && (
+                              <p className="text-sm text-gray-500">Color: {item.variantColor}</p>
+                            )}
+                            <p className="text-sm text-gray-500">
+                              {item.rentalDays} day(s) × {formatCurrency(item.dailyPrice)}/day
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-gray-900">{formatCurrency(item.subtotal)}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[rental.status] || "bg-gray-100 text-gray-800"}`}>
-                    {rental.status.replace(/_/g, " ")}
-                  </span>
-                </div>
 
-                {/* Order Items */}
-                <div className="p-4">
-                  <div className="space-y-4">
-                    {rental.items.map((item) => (
-                      <div key={item.id} className="flex gap-4">
-                        <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                          {item.productImage ? (
-                            <img
-                              src={item.productImage}
-                              alt={item.productName}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Package className="h-8 w-8 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <Link href={`/product/${item.productId}`} className="font-medium text-gray-900 hover:text-primary">
-                            {item.productName}
-                          </Link>
-                          {item.variantSize && (
-                            <p className="text-sm text-gray-500">Size: {item.variantSize}</p>
-                          )}
-                          {item.variantColor && (
-                            <p className="text-sm text-gray-500">Color: {item.variantColor}</p>
-                          )}
-                          <p className="text-sm text-gray-500">
-                            {item.rentalDays} day(s) × {formatCurrency(item.dailyPrice)}/day
+                  {/* Order Details */}
+                  <div className="border-t border-gray-100 px-4 py-3 bg-gray-50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-start gap-2">
+                        <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                        <div>
+                          <p className="text-gray-500">Rental Period</p>
+                          <p className="text-gray-900">
+                            {formatDate(rental.rentalStartDate)} - {formatDate(rental.rentalEndDate)}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <p className="font-medium text-gray-900">{formatCurrency(item.subtotal)}</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                        <div>
+                          <p className="text-gray-500">Delivery Address</p>
+                          <p className="text-gray-900">
+                            {rental.shippingAddress.firstName} {rental.shippingAddress.lastName}, {rental.shippingAddress.city}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Order Details */}
-                <div className="border-t border-gray-100 px-4 py-3 bg-gray-50">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
-                      <div>
-                        <p className="text-gray-500">Rental Period</p>
-                        <p className="text-gray-900">
-                          {formatDate(rental.rentalStartDate)} - {formatDate(rental.rentalEndDate)}
-                        </p>
-                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
-                      <div>
-                        <p className="text-gray-500">Delivery Address</p>
-                        <p className="text-gray-900">
-                          {rental.shippingAddress.firstName} {rental.shippingAddress.lastName}, {rental.shippingAddress.city}
-                        </p>
-                      </div>
+                  </div>
+
+                  {/* Order Total */}
+                  <div className="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
+                    <div className="text-sm text-gray-500">
+                      Deposit: {formatCurrency(Number(rental.depositAmount))}
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm text-gray-500">Total: </span>
+                      <span className="text-lg font-bold text-gray-900">{formatCurrency(Number(rental.totalAmount))}</span>
                     </div>
                   </div>
                 </div>
-
-                {/* Order Total */}
-                <div className="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    Deposit: {formatCurrency(Number(rental.depositAmount))}
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm text-gray-500">Total: </span>
-                    <span className="text-lg font-bold text-gray-900">{formatCurrency(Number(rental.totalAmount))}</span>
-                  </div>
-                </div>
-              </div>
+              </Link>
             ))}
+            <div className="text-center py-6 text-sm text-gray-500 font-medium">
+              Ends of order
+            </div>
           </div>
         )}
       </div>

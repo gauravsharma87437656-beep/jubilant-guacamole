@@ -24,6 +24,8 @@ export function Navbar() {
   const { data: session, status } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
+  const lastScrollY = useRef(0);
 
   const cartItems = useCartStore((state) => state.items);
   const toggleCart = useCartStore((state) => state.toggleCart);
@@ -33,6 +35,21 @@ export function Navbar() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Auto-hide navbar on scroll down (mobile only)
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        setNavHidden(true);
+      } else {
+        setNavHidden(false);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     // Close suggestions when clicking outside
@@ -93,25 +110,33 @@ export function Navbar() {
 
   return (
     <header className={cn(
-      "sticky top-0 z-50 bg-white border-b border-gray-200",
-      isMobileHiddenPage && "hidden md:block" // Hide on mobile for specific pages where we use custom headers
+      "sticky top-0 z-50 bg-white border-b border-gray-200 transition-transform duration-300",
+      isMobileHiddenPage && "hidden md:block",
+      navHidden && "md:translate-y-0 -translate-y-full"
     )}>
       <nav className="w-full px-4 md:px-8 relative">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-14 md:h-16 items-center justify-between">
 
-          {/* Logo & Brand */}
+          {/* Left side: Hamburger (mobile) + Logo */}
           <div className="flex items-center gap-2">
-            {/* Logo Icon */}
-            <Link href="/" className="flex items-center justify-center">
-              <Layers className="h-6 w-6 text-black" />
-            </Link>
+            {/* Hamburger - Left side on Mobile */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-1.5 text-gray-900 md:hidden -ml-1"
+            >
+              <span className="sr-only">Menu</span>
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
 
-            {/* Brand Text - Near Logo on Mobile & Desktop */}
-            <div className="">
-              <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900">
-                Rent Square
-              </Link>
-            </div>
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-1.5">
+              <Layers className="h-5 w-5 md:h-6 md:w-6 text-black" />
+              <span className="text-lg md:text-2xl font-bold text-gray-900">Rent Square</span>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -134,18 +159,10 @@ export function Navbar() {
           </div>
 
           {/* Right Side Icons */}
-          <div className="flex items-center space-x-2 md:space-x-4 ml-auto md:ml-0">
-
-            {/* Search Icon (Mobile Toggle) */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="md:hidden p-2 text-black hover:text-gray-900 order-1"
-            >
-              <Search className="h-5 w-5" />
-            </button>
+          <div className="flex items-center space-x-1 md:space-x-4 ml-auto md:ml-0">
 
             {/* Desktop Search Bar */}
-            <div className="relative hidden md:block md:order-1" ref={searchRef}>
+            <div className="relative hidden md:block" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative flex items-center">
                 <input
                   type="text"
@@ -191,27 +208,26 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Cart Icon - Moved before Sign In for Desktop, next to Menu on Mobile */}
-            {/* Cart Icon - Moved before Sign In for Desktop, next to Menu on Mobile */}
+            {/* Cart Icon - Mobile: simple, Desktop: with count badge */}
             <Link
               href="/cart"
-              className="relative p-2 text-black hover:text-gray-900 cursor-pointer order-3 md:order-2"
+              className="relative p-2 text-gray-900 hover:text-gray-700 cursor-pointer"
             >
               <span className="sr-only">Cart</span>
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs text-white">
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-gray-900 text-[10px] md:text-xs text-white">
                   {cartCount}
                 </span>
               )}
             </Link>
 
-            {/* Profile Icon / Sign In Button - Moved to far right on Desktop, before Cart on Mobile */}
+            {/* Profile / Sign In - Desktop Only */}
             {status === "loading" ? (
-              <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse order-2 md:order-3" />
+              <div className="hidden md:block h-8 w-8 rounded-full bg-gray-200 animate-pulse" />
             ) : session ? (
               <div
-                className="relative order-2 md:order-3 group"
+                className="relative hidden md:block group"
                 onMouseEnter={() => setUserMenuOpen(true)}
                 onMouseLeave={() => setUserMenuOpen(false)}
               >
@@ -305,36 +321,17 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              // Mobile: User Icon link to login, Desktop: Sign In Button
-              <div className="order-2 md:order-3">
-                <Link href="/login" className="md:hidden p-2 text-black hover:text-gray-900">
-                  <User className="h-5 w-5" />
+              <div className="hidden md:flex items-center space-x-2">
+                <Link href="/login" prefetch={false}>
+                  <Button
+                    size="sm"
+                    className="bg-black text-white hover:bg-gray-900 hover:text-white hover:font-bold transition-all"
+                  >
+                    Sign In
+                  </Button>
                 </Link>
-                <div className="hidden md:flex items-center space-x-2">
-                  <Link href="/login" prefetch={false}>
-                    <Button
-                      size="sm"
-                      className="bg-black text-white hover:bg-gray-900 hover:text-white hover:font-bold transition-all"
-                    >
-                      Sign In
-                    </Button>
-                  </Link>
-                </div>
               </div>
             )}
-
-            {/* Mobile menu button (Right) */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-black hover:text-gray-900 md:hidden order-4"
-            >
-              <span className="sr-only">Menu</span>
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
           </div>
         </div>
 
@@ -348,22 +345,51 @@ export function Navbar() {
           handleSearch={handleSearch}
         />
 
-        {/* Mobile Menu Drawer */}
+        {/* Mobile Menu - Left Side Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4 absolute bg-white w-full left-0 shadow-xl z-40">
-            <div className="space-y-4 px-2 pb-4">
+          <>
+            {/* Backdrop */}
+            <div
+              className="md:hidden fixed inset-0 bg-black/40 z-40"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            {/* Drawer */}
+            <div className="md:hidden fixed top-0 left-0 bottom-0 w-[280px] bg-white z-50 shadow-2xl animate-slide-in-left overflow-y-auto">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100">
+                <Link href="/" className="flex items-center gap-1.5" onClick={() => setMobileMenuOpen(false)}>
+                  <Layers className="h-5 w-5 text-black" />
+                  <span className="text-lg font-bold text-gray-900">Rent Square</span>
+                </Link>
+                <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-gray-500">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-              {/* Pages */}
-              <div>
-                <span className="text-xs font-semibold text-black uppercase px-2">
-                  Pages
-                </span>
+              {/* User Info */}
+              {session && (
+                <div className="px-4 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+                      <User className="h-5 w-5 text-rose-600" />
+                    </div>
+                    <div>
+                      <p className="text-[15px] font-bold text-gray-900">{session.user?.name || "User"}</p>
+                      <p className="text-[12px] text-gray-400">{session.user?.email}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Menu Links */}
+              <div className="py-3">
+                <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Shop</p>
                 {navigation.pages.map((page) => (
                   <Link
                     key={page.name}
                     href={page.href}
                     prefetch={false}
-                    className="block px-3 py-2 text-base font-medium text-black hover:bg-gray-100 rounded-md"
+                    className="flex items-center px-4 py-3 text-[15px] font-medium text-gray-800 hover:bg-gray-50 transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {page.name}
@@ -371,37 +397,62 @@ export function Navbar() {
                 ))}
               </div>
 
-              {/* Auth Links/Dashboard in Menu */}
               {session && (
-                <div className="pt-2 flex flex-col space-y-2 px-3">
-                  <Link href={getDashboardLink()} prefetch={false}>
-                    <Button variant="outline" className="w-full justify-start">
-                      <User className="h-4 w-4 mr-2" />
+                <div className="py-3 border-t border-gray-100">
+                  <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Account</p>
+                  {session?.user?.role !== "USER" && (
+                    <Link
+                      href={getDashboardLink()}
+                      prefetch={false}
+                      className="flex items-center gap-3 px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Layers className="h-5 w-5 text-gray-400" />
                       Dashboard
-                    </Button>
+                    </Link>
+                  )}
+                  <Link href="/profile" className="flex items-center gap-3 px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
+                    <User className="h-5 w-5 text-gray-400" />
+                    My Profile
                   </Link>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-red-600 border-red-600 hover:bg-red-50"
+                  <Link href="/profile/orders" className="flex items-center gap-3 px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
+                    <Package className="h-5 w-5 text-gray-400" />
+                    Orders
+                  </Link>
+                  <Link href="/profile/addresses" className="flex items-center gap-3 px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
+                    <MapPin className="h-5 w-5 text-gray-400" />
+                    Addresses
+                  </Link>
+                  <Link href="/profile/settings" className="flex items-center gap-3 px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
+                    <Settings className="h-5 w-5 text-gray-400" />
+                    Settings
+                  </Link>
+                </div>
+              )}
+
+              {/* Bottom Actions */}
+              <div className="py-3 border-t border-gray-100 px-4">
+                {session ? (
+                  <button
                     onClick={() => {
                       setMobileMenuOpen(false);
                       handleSignOut();
                     }}
+                    className="w-full flex items-center justify-center gap-2 py-3 text-red-600 font-semibold text-[14px] border border-red-200 rounded-xl hover:bg-red-50 transition-colors"
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
+                    <LogOut className="h-4 w-4" />
                     Sign Out
-                  </Button>
-                </div>
-              )}
-              {!session && (
-                <div className="pt-2 flex flex-col space-y-2 px-3">
-                  <Link href="/login" prefetch={false}>
-                    <Button className="w-full bg-black text-white hover:bg-gray-900">Sign In</Button>
+                  </button>
+                ) : (
+                  <Link href="/login" prefetch={false} onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-gray-900 text-white hover:bg-black h-12 rounded-xl font-bold">
+                      Sign In
+                    </Button>
                   </Link>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </nav>
     </header>

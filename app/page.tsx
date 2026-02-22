@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/product/product-card";
 
@@ -53,6 +54,8 @@ interface Product {
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const router = useRouter();
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
 
   const { data: categories = [], isLoading: catLoading } = useQuery<Category[]>({
     queryKey: ['home-categories'],
@@ -116,6 +119,25 @@ export default function HomePage() {
   const scrollPrev = useCallback(() => bestsellerApi && bestsellerApi.scrollPrev(), [bestsellerApi]);
   const scrollNext = useCallback(() => bestsellerApi && bestsellerApi.scrollNext(), [bestsellerApi]);
 
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      router.push(`/categories?search=${encodeURIComponent(mobileSearchQuery)}`);
+    }
+  };
+
+  // Cloth rental categories with icons
+  const rentalCategories = [
+    { name: "All", slug: "", icon: "✨" },
+    { name: "Men", slug: "male", icon: "👔" },
+    { name: "Women", slug: "female", icon: "👗" },
+    { name: "Ethnic", slug: "ethnic", icon: "🪷" },
+    { name: "Party", slug: "party-wear", icon: "🎉" },
+    { name: "Wedding", slug: "wedding", icon: "💍" },
+    { name: "Casual", slug: "casual", icon: "👕" },
+    { name: "Formal", slug: "formal", icon: "🤵" },
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -126,6 +148,39 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
+
+      {/* Mobile: Sticky Search Bar + Category Strip */}
+      <div className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-100">
+        {/* Search Bar */}
+        <div className="px-3 pt-2 pb-1.5">
+          <form onSubmit={handleMobileSearch} className="relative">
+            <input
+              type="text"
+              value={mobileSearchQuery}
+              onChange={(e) => setMobileSearchQuery(e.target.value)}
+              placeholder="Search for outfits..."
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[14px] text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:bg-white transition-all"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400" />
+          </form>
+        </div>
+
+        {/* Category Row */}
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-0.5 px-2 py-1 min-w-max">
+            {rentalCategories.map((cat) => (
+              <Link
+                key={cat.name}
+                href={cat.slug ? `/categories/${cat.slug}` : "/categories"}
+                className="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl hover:bg-gray-50 transition-colors min-w-[52px]"
+              >
+                <span className="text-[20px] leading-none">{cat.icon}</span>
+                <span className="text-[10px] font-semibold text-gray-600 whitespace-nowrap">{cat.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Hero Section with Carousel */}
       <HeroCarousel />
@@ -139,12 +194,12 @@ export default function HomePage() {
 
       {/* Best Deals / Featured Section */}
 
-      <section className="py-8 bg-gray-50" aria-labelledby="bestsellers-title">
+      <section className="py-4 md:py-8 bg-gray-50" aria-labelledby="bestsellers-title">
         <div className="w-full relative group/section">
-          <div className="flex flex-wrap gap-3 justify-center mb-12" role="tablist" aria-label="Filter by category">
+          <div className="flex flex-wrap gap-2 md:gap-3 justify-center mb-4 md:mb-12 px-3" role="tablist" aria-label="Filter by category">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`font-semibold px-6 py-2 rounded-full shadow-md transition-colors ${selectedCategory === null
+              className={`font-semibold px-4 py-1.5 md:px-6 md:py-2 rounded-full shadow-md transition-colors text-[13px] md:text-base ${selectedCategory === null
                 ? "bg-primary text-white"
                 : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
                 }`}
@@ -157,7 +212,7 @@ export default function HomePage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`font-semibold px-6 py-2 rounded-full transition-colors ${selectedCategory === cat.name
+                className={`font-semibold px-4 py-1.5 md:px-6 md:py-2 rounded-full transition-colors text-[13px] md:text-base ${selectedCategory === cat.name
                   ? "bg-primary text-white"
                   : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
                   }`}
@@ -169,10 +224,10 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="flex justify-between items-end mb-8 px-4">
+          <div className="flex justify-between items-end mb-4 md:mb-8 px-3 md:px-4">
             <div>
-              <h3 id="bestsellers-title" className="text-3xl font-black text-primary mb-2">Our Bestsellers</h3>
-              <p className="text-black">Explore our most popular rental choices this season.</p>
+              <h3 id="bestsellers-title" className="text-xl md:text-3xl font-black text-primary mb-1 md:mb-2">Our Bestsellers</h3>
+              <p className="text-[13px] md:text-base text-black">Explore our most popular rental choices this season.</p>
             </div>
             {/* Navigation Buttons */}
             <div className="hidden md:flex gap-2" role="navigation" aria-label="Product carousel navigation">

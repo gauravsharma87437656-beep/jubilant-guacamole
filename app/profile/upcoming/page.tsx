@@ -106,9 +106,9 @@ export default function CustomerUpcomingPage() {
           </Link>
         </div>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Upcoming Rentals</h1>
-          <p className="mt-2 text-gray-600">See your scheduled rentals</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-[20px] md:text-3xl font-bold text-gray-900 tracking-tight">Upcoming Rentals</h1>
+          <p className="mt-1 md:mt-2 text-[13px] md:text-base text-gray-500">See your scheduled rentals</p>
         </div>
 
         {loading ? (

@@ -88,12 +88,12 @@ function CartItemCard({ item }: { item: CartItem }) {
     : [];
 
   return (
-    <div ref={cardRef} className="group bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 scroll-mt-24">
-      <div className="flex flex-col md:flex-row p-5 md:p-6 gap-5 md:gap-6">
+    <div ref={cardRef} className="group bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 scroll-mt-24">
+      <div className="flex flex-col md:flex-row p-3 md:p-6 gap-3 md:gap-6">
         {/* Left Section: Image and Mobile Summary */}
-        <div className="flex-shrink-0 flex flex-row md:flex-col gap-4">
+        <div className="flex-shrink-0 flex flex-row md:flex-col gap-3 md:gap-4">
           <Link href={`/product/${item.productId}`} className="relative">
-            <div className="w-20 h-28 md:w-32 md:h-44 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group-hover:border-rose-100 transition-colors">
+            <div className="w-16 h-20 md:w-32 md:h-44 bg-gray-50 rounded-xl md:rounded-2xl overflow-hidden border border-gray-100 group-hover:border-rose-100 transition-colors">
               <img
                 src={item.productImage}
                 alt={item.productName}
@@ -102,7 +102,7 @@ function CartItemCard({ item }: { item: CartItem }) {
             </div>
           </Link>
 
-          <div className="flex flex-col justify-center md:hidden flex-1 min-w-0 pr-6">
+          <div className="flex flex-col justify-center md:hidden flex-1 min-w-0">
             <Link href={`/product/${item.productId}`}>
               <h3 className="font-semibold text-gray-900 leading-tight line-clamp-2 text-[14px]">
                 {item.productName}
@@ -113,9 +113,9 @@ function CartItemCard({ item }: { item: CartItem }) {
             )}
 
             <div className="flex items-center justify-between mt-3 w-full">
-              <span className="text-[16px] font-bold text-gray-900 tracking-tight">${item.dailyPrice.toFixed(2)}</span>
+              <span className="text-[16px] font-bold text-gray-900 tracking-tight">₹{item.dailyPrice.toLocaleString()}</span>
 
-              <div className="flex items-center gap-3 bg-gray-50/80 rounded-full px-2 py-1 border border-gray-100/50 mr-4">
+              <div className="flex items-center gap-3 bg-gray-50/80 rounded-full px-2 py-1 border border-gray-100/50">
                 <button
                   onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.variantId)}
                   className="p-1 text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-50"
@@ -132,12 +132,6 @@ function CartItemCard({ item }: { item: CartItem }) {
               </div>
             </div>
           </div>
-          <button
-            onClick={() => removeItem(item.productId, item.variantId)}
-            className="absolute top-4 right-4 md:hidden text-red-400 hover:text-red-500 transition-colors bg-white rounded-full flex items-center justify-center border border-red-200 p-0.5"
-          >
-            <X className="w-4 h-4" strokeWidth={2.5} />
-          </button>
         </div>
 
         {/* Right Section: Configuration and Pricing */}
@@ -164,12 +158,12 @@ function CartItemCard({ item }: { item: CartItem }) {
             </button>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex flex-col lg:flex-row gap-4">
+          <div className="space-y-3 md:space-y-4">
+            <div className="flex flex-col lg:flex-row gap-3 md:gap-4">
               {/* Date Range Selector */}
               <div className="flex-[1.4] w-full">
-                <p className="text-[10px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-2 px-1">Select Dates</p>
-                <div className="flex items-center bg-white border border-gray-100 rounded-full overflow-hidden shadow-sm h-12 sm:h-14">
+                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Select Dates</p>
+                <div className="flex items-center bg-white border border-gray-100 rounded-full overflow-hidden shadow-sm h-10 sm:h-14">
                   <button
                     onClick={() => setShowCalendar(!showCalendar)}
                     className={`flex-1 flex items-center gap-3 px-4 sm:px-5 h-full transition-all hover:bg-gray-50 group/date ${showCalendar ? 'bg-rose-50/50' : ''}`}
@@ -198,9 +192,9 @@ function CartItemCard({ item }: { item: CartItem }) {
               </div>
 
               {/* Duration Control */}
-              <div className="flex-1 w-full max-w-[200px] lg:max-w-none">
-                <p className="text-[10px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-2 px-1">Duration</p>
-                <div className="flex items-center border border-gray-100 rounded-full h-12 sm:h-14 overflow-hidden bg-white shadow-sm">
+              <div className="flex-1 w-full max-w-[180px] lg:max-w-none">
+                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Duration</p>
+                <div className="flex items-center border border-gray-100 rounded-full h-10 sm:h-14 overflow-hidden bg-white shadow-sm">
                   <button
                     onClick={() => handleRentalDaysChange(localRentalDays - 1)}
                     className="w-10 sm:w-12 h-full flex items-center justify-center hover:bg-gray-50 transition-colors border-r border-gray-50"
@@ -223,8 +217,8 @@ function CartItemCard({ item }: { item: CartItem }) {
             {/* Size Selection */}
             {availableSizes.length > 0 && (
               <div className="w-full lg:w-1/2">
-                <p className="text-[10px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-2 px-1">Select Size</p>
-                <div className="relative h-12 sm:h-14">
+                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Select Size</p>
+                <div className="relative h-10 sm:h-14">
                   <select
                     value={item.variantSize}
                     onChange={(e) => handleSizeChange(e.target.value)}
@@ -243,11 +237,11 @@ function CartItemCard({ item }: { item: CartItem }) {
           </div>
 
           {/* Pricing and Actions Bar */}
-          <div className="mt-8 pt-6 border-t border-gray-50 flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-4">
+          <div className="mt-4 md:mt-8 pt-3 md:pt-6 border-t border-gray-50 flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-6 self-start">
-              <div className="space-y-1.5">
-                <p className="text-[10px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest px-1">Quantity</p>
-                <div className="flex items-center bg-white border border-gray-100 rounded-full overflow-hidden shadow-sm h-10 sm:h-11 px-1">
+              <div className="space-y-1">
+                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest px-1">Quantity</p>
+                <div className="flex items-center bg-white border border-gray-100 rounded-full overflow-hidden shadow-sm h-9 sm:h-11 px-1">
                   <button
                     onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.variantId)}
                     className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all rounded-full"
@@ -284,7 +278,7 @@ function CartItemCard({ item }: { item: CartItem }) {
 
 
           {/* Actions Row: Save for Later & Remove */}
-          <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <div className="mt-3 md:mt-6 pt-3 md:pt-4 border-t border-gray-100 flex items-center justify-between">
             <button
               onClick={() => moveToWishlist(item.productId, item.variantId)}
               className="flex items-center gap-2 text-xs sm:text-sm font-black text-gray-500 hover:text-rose-600 transition-colors group/save px-2 py-1"
@@ -402,12 +396,21 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center gap-4 mb-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-center pt-1 pb-4 relative">
+          <Link href="/" className="absolute left-0 text-gray-900 p-2 -ml-2">
+            <ArrowLeft className="h-6 w-6" />
+          </Link>
+          <h1 className="text-[18px] font-bold text-gray-900 tracking-tight">My Cart</h1>
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden md:flex items-center gap-4 mb-8">
           <Link href="/" className="text-gray-500 hover:text-gray-700">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+          <h1 className="text-3xl font-bold text-gray-900">My Cart</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -627,31 +630,31 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* Sticky Mobile Checkout Bar - Stays above the global bottom dock! */}
+      {/* Sticky Mobile Checkout Bar */}
       {items.length > 0 && (
-        <div className="lg:hidden fixed bottom-[72px] sm:bottom-[80px] left-0 right-0 z-40 px-4">
-          <div className="bg-white rounded-[24px] border border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] p-5 w-full flex flex-col gap-4 mx-auto max-w-md">
+        <div className="lg:hidden fixed bottom-[72px] sm:bottom-[80px] left-0 right-0 z-40 px-3">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-5 py-4 w-full flex flex-col gap-3 mx-auto max-w-md">
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-[13px] font-medium text-gray-500">
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-[13px] text-gray-500">
                 <span>Subtotal</span>
-                <span className="font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+                <span className="font-bold text-gray-900">₹{subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between items-center text-[13px] font-medium text-gray-500">
+              <div className="flex justify-between items-center text-[13px] text-gray-500">
                 <span>Shipping</span>
-                <span className="font-bold text-gray-900">${(items.length > 0 ? 2 : 0).toFixed(2)}</span>
+                <span className="font-bold text-gray-900">₹{(items.length > 0 ? 2 : 0).toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="h-[1px] bg-gray-50 w-full" />
+            <div className="h-[1px] bg-gray-100 w-full" />
 
-            <div className="flex justify-between items-end">
-              <span className="text-[17px] font-extrabold text-gray-900 tracking-tight">Total</span>
-              <span className="text-[19px] font-extrabold text-gray-900 tracking-tight">${(subtotal + (items.length > 0 ? 2 : 0)).toFixed(2)}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-[15px] font-bold text-gray-900">Total</span>
+              <span className="text-[18px] font-extrabold text-gray-900">₹{Math.round(subtotal + (items.length > 0 ? 2 : 0)).toLocaleString()}</span>
             </div>
 
             <Button
-              className="w-full bg-[#111111] hover:bg-black text-white font-bold h-[52px] rounded-[16px] shadow-sm shadow-black/10 active:scale-[0.98] transition-all text-[15px] mt-2"
+              className="w-full bg-gray-900 hover:bg-black text-white font-bold h-[50px] rounded-2xl active:scale-[0.98] transition-all text-[15px]"
               onClick={handleCheckout}
               disabled={items.length === 0}
             >
@@ -666,7 +669,7 @@ export default function CartPage() {
       )}
 
       {/* Content Spacer for Sticky Bar + Bottom Dock space */}
-      <div className="h-[300px] lg:hidden"></div>
+      <div className="h-[280px] lg:hidden"></div>
     </div>
   );
 }
