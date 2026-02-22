@@ -162,7 +162,7 @@ function CartItemCard({ item }: { item: CartItem }) {
             <div className="flex flex-col lg:flex-row gap-3 md:gap-4">
               {/* Date Range Selector */}
               <div className="flex-[1.4] w-full">
-                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Select Dates</p>
+                <p className="text-[9px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Select Dates</p>
                 <div className="flex items-center bg-white border border-gray-100 rounded-full overflow-hidden shadow-sm h-10 sm:h-14">
                   <button
                     onClick={() => setShowCalendar(!showCalendar)}
@@ -170,8 +170,8 @@ function CartItemCard({ item }: { item: CartItem }) {
                   >
                     <CalendarDays className={`h-4 w-4 sm:h-5 w-5 ${showCalendar ? 'text-rose-500' : 'text-gray-400 group-hover/date:text-rose-400'}`} />
                     <div className="flex flex-col items-start leading-none gap-0.5 sm:gap-1">
-                      <span className="text-[8px] sm:text-[9px] font-black text-rose-500 uppercase">Start Date</span>
-                      <span className="text-xs sm:text-sm font-black text-gray-900 whitespace-nowrap">
+                      <span className="text-[8px] sm:text-[9px] font-bold text-rose-500 uppercase">Start Date</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">
                         {localStartDate ? localStartDate.toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) : "Pick Date"}
                       </span>
                     </div>
@@ -182,8 +182,8 @@ function CartItemCard({ item }: { item: CartItem }) {
                   <div className="flex-1 flex items-center gap-3 px-4 sm:px-5 h-full bg-gray-50/20">
                     <CalendarDays className="h-4 w-4 sm:h-5 w-5 text-gray-300" />
                     <div className="flex flex-col items-start leading-none gap-0.5 sm:gap-1">
-                      <span className="text-[8px] sm:text-[9px] font-black text-gray-400 uppercase">Return Date</span>
-                      <span className="text-xs sm:text-sm font-black text-gray-500 whitespace-nowrap">
+                      <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase">Return Date</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-500 whitespace-nowrap">
                         {localStartDate ? addDays(localStartDate, localRentalDays - 1).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) : "-"}
                       </span>
                     </div>
@@ -193,7 +193,7 @@ function CartItemCard({ item }: { item: CartItem }) {
 
               {/* Duration Control */}
               <div className="flex-1 w-full max-w-[180px] lg:max-w-none">
-                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Duration</p>
+                <p className="text-[9px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Duration</p>
                 <div className="flex items-center border border-gray-100 rounded-full h-10 sm:h-14 overflow-hidden bg-white shadow-sm">
                   <button
                     onClick={() => handleRentalDaysChange(localRentalDays - 1)}
@@ -201,8 +201,8 @@ function CartItemCard({ item }: { item: CartItem }) {
                   >
                     <ChevronLeft className="h-4 w-4 text-gray-500" />
                   </button>
-                  <span className="flex-1 text-center font-black text-gray-900 text-sm sm:text-base">
-                    {localRentalDays} <span className="text-[9px] sm:text-[10px] font-black text-gray-400 ml-0.5">DAYS</span>
+                  <span className="flex-1 text-center font-bold text-gray-900 text-sm sm:text-base">
+                    {localRentalDays} <span className="text-[9px] sm:text-[10px] font-semibold text-gray-400 ml-0.5">DAYS</span>
                   </span>
                   <button
                     onClick={() => handleRentalDaysChange(localRentalDays + 1)}
@@ -217,12 +217,12 @@ function CartItemCard({ item }: { item: CartItem }) {
             {/* Size Selection */}
             {availableSizes.length > 0 && (
               <div className="w-full lg:w-1/2">
-                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Select Size</p>
+                <p className="text-[9px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 md:mb-2 px-1">Select Size</p>
                 <div className="relative h-10 sm:h-14">
                   <select
                     value={item.variantSize}
                     onChange={(e) => handleSizeChange(e.target.value)}
-                    className="w-full h-full bg-white border border-gray-100 rounded-full px-5 sm:px-6 font-black text-gray-900 text-xs sm:text-sm outline-none cursor-pointer hover:border-rose-200 transition-all appearance-none shadow-sm"
+                    className="w-full h-full bg-white border border-gray-100 rounded-full px-5 sm:px-6 font-semibold text-gray-900 text-xs sm:text-sm outline-none cursor-pointer hover:border-rose-200 transition-all appearance-none shadow-sm"
                   >
                     {availableSizes.map((size: any) => (
                       <option key={size} value={size}>{size}</option>
@@ -240,7 +240,7 @@ function CartItemCard({ item }: { item: CartItem }) {
           <div className="mt-4 md:mt-8 pt-3 md:pt-6 border-t border-gray-50 flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-6 self-start">
               <div className="space-y-1">
-                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase tracking-widest px-1">Quantity</p>
+                <p className="text-[9px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-widest px-1">Quantity</p>
                 <div className="flex items-center bg-white border border-gray-100 rounded-full overflow-hidden shadow-sm h-9 sm:h-11 px-1">
                   <button
                     onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.variantId)}
@@ -248,7 +248,7 @@ function CartItemCard({ item }: { item: CartItem }) {
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                   </button>
-                  <span className="w-8 sm:w-10 text-center font-black text-gray-900 text-xs sm:text-sm">{item.quantity}</span>
+                  <span className="w-8 sm:w-10 text-center font-bold text-gray-900 text-xs sm:text-sm">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
                     className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all rounded-full"
@@ -263,12 +263,12 @@ function CartItemCard({ item }: { item: CartItem }) {
             <div className="text-left sm:text-right">
               <div className="flex flex-col items-start sm:items-end">
                 <div className="flex items-center gap-3 mb-1">
-                  <span className="text-[9px] sm:text-[11px] font-black text-rose-500 uppercase tracking-widest">Total Rental</span>
+                  <span className="text-[9px] sm:text-[11px] font-bold text-rose-500 uppercase tracking-widest">Total Rental</span>
                   <span className="text-xl sm:text-2xl font-black text-gray-900 tracking-tighter">
                     ₹{(item.dailyPrice * localRentalDays * item.quantity).toLocaleString()}
                   </span>
                 </div>
-                <p className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                <p className="text-[9px] sm:text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                   Incl. {localRentalDays} days · Qty: {item.quantity}
                 </p>
               </div>
@@ -281,7 +281,7 @@ function CartItemCard({ item }: { item: CartItem }) {
           <div className="mt-3 md:mt-6 pt-3 md:pt-4 border-t border-gray-100 flex items-center justify-between">
             <button
               onClick={() => moveToWishlist(item.productId, item.variantId)}
-              className="flex items-center gap-2 text-xs sm:text-sm font-black text-gray-500 hover:text-rose-600 transition-colors group/save px-2 py-1"
+              className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-500 hover:text-rose-600 transition-colors group/save px-2 py-1"
             >
               <Heart className="h-4 w-4 sm:h-5 w-5 transition-transform group-hover/save:scale-110" />
               <span className="uppercase tracking-widest">Save for Later</span>
@@ -289,7 +289,7 @@ function CartItemCard({ item }: { item: CartItem }) {
 
             <button
               onClick={() => removeItem(item.productId, item.variantId)}
-              className="flex items-center gap-2 text-xs font-black text-gray-400 hover:text-red-500 transition-all px-2 py-1"
+              className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-red-500 transition-all px-2 py-1"
             >
               <Trash2 className="h-4 w-4" />
               <span className="uppercase tracking-widest">Remove</span>

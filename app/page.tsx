@@ -206,7 +206,7 @@ export default function HomePage() {
           <div className="flex md:flex-wrap gap-2 md:gap-3 md:justify-center mb-4 md:mb-12 px-3 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Filter by category">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`font-semibold px-4 py-1.5 md:px-6 md:py-2 rounded-full shadow-md transition-colors text-[13px] md:text-base ${selectedCategory === null
+              className={`font-semibold px-4 py-1.5 md:px-6 md:py-2 rounded-full shadow-md transition-colors text-[13px] md:text-base whitespace-nowrap ${selectedCategory === null
                 ? "bg-primary text-white"
                 : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
                 }`}
@@ -219,7 +219,7 @@ export default function HomePage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`font-semibold px-4 py-1.5 md:px-6 md:py-2 rounded-full transition-colors text-[13px] md:text-base ${selectedCategory === cat.name
+                className={`font-semibold px-4 py-1.5 md:px-6 md:py-2 rounded-full transition-colors text-[13px] md:text-base whitespace-nowrap ${selectedCategory === cat.name
                   ? "bg-primary text-white"
                   : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
                   }`}

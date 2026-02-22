@@ -229,40 +229,57 @@ export function DropsSection() {
                         </div>
                     </div>
 
-                    {/* Navigation Arrows (Floating) */}
+                    {/* Navigation Arrows (Desktop Only - Floating) */}
                     <button
                         onClick={scrollPrev}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 border border-gray-200 bg-white rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-colors z-30 shadow-lg"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 border border-gray-200 bg-white rounded-full hidden md:flex items-center justify-center hover:bg-black hover:text-white transition-colors z-30 shadow-lg"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                         onClick={scrollNext}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 border border-gray-200 bg-white rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-colors z-30 shadow-lg"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 border border-gray-200 bg-white rounded-full hidden md:flex items-center justify-center hover:bg-black hover:text-white transition-colors z-30 shadow-lg"
                     >
                         <ChevronRight className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* Product Details Card */}
+                {/* Product Details Card with Mobile Nav */}
                 {activeProduct && (
-                    <div className="max-w-[240px] md:max-w-sm mx-auto">
-                        <div className="bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-3 md:p-5 text-center relative overflow-hidden">
-                            <div className="relative z-10 transition-all duration-300">
-                                <h3 className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1 truncate">
-                                    {activeProduct.name}
-                                </h3>
-                                <p className="text-lg md:text-2xl font-black text-gray-900 mb-2 md:mb-4">
-                                    ₹{activeProduct.price.toLocaleString('en-IN')}
-                                </p>
-                                <Link
-                                    href={`/product/${activeProduct.slug || activeProduct.id}`}
-                                    prefetch={false}
-                                    className="block w-full bg-black text-white font-bold py-2 md:py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-[10px] md:text-xs"
-                                >
-                                    Explore
-                                </Link>
+                    <div className="max-w-[320px] md:max-w-sm mx-auto">
+                        {/* Mobile: arrows flanking the card */}
+                        <div className="flex items-center gap-2 md:gap-0">
+                            <button
+                                onClick={scrollPrev}
+                                className="md:hidden w-9 h-9 border border-gray-200 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors shadow-sm flex-shrink-0"
+                            >
+                                <ChevronLeft className="w-4 h-4 text-gray-600" />
+                            </button>
+
+                            <div className="flex-1 bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-3 md:p-5 text-center relative overflow-hidden">
+                                <div className="relative z-10 transition-all duration-300">
+                                    <h3 className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1 truncate">
+                                        {activeProduct.name}
+                                    </h3>
+                                    <p className="text-lg md:text-2xl font-black text-gray-900 mb-2 md:mb-4">
+                                        ₹{activeProduct.price.toLocaleString('en-IN')}
+                                    </p>
+                                    <Link
+                                        href={`/product/${activeProduct.slug || activeProduct.id}`}
+                                        prefetch={false}
+                                        className="block w-full bg-black text-white font-bold py-2 md:py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-[10px] md:text-xs"
+                                    >
+                                        Explore
+                                    </Link>
+                                </div>
                             </div>
+
+                            <button
+                                onClick={scrollNext}
+                                className="md:hidden w-9 h-9 border border-gray-200 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors shadow-sm flex-shrink-0"
+                            >
+                                <ChevronRight className="w-4 h-4 text-gray-600" />
+                            </button>
                         </div>
 
                         {/* Pagination Dots */}
