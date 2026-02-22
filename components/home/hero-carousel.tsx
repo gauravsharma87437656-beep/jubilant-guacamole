@@ -19,7 +19,7 @@ interface Banner {
 
 function HeroSkeleton() {
     return (
-        <div className="relative w-full aspect-[4/3] md:h-[calc(100vh-80px)] md:aspect-auto bg-gray-200 animate-pulse">
+        <div className="relative w-full aspect-[16/9] md:h-[calc(100vh-80px)] md:aspect-auto bg-gray-200 animate-pulse mx-3 rounded-2xl md:mx-0 md:rounded-none overflow-hidden" style={{ width: 'calc(100% - 24px)' }}>
             <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
                 <div className="h-4 w-32 bg-gray-300 rounded mb-4"></div>
                 <div className="h-12 w-64 bg-gray-300 rounded mb-6"></div>
@@ -84,11 +84,11 @@ export function HeroCarousel() {
     }
 
     return (
-        <div className="relative w-full overflow-hidden bg-gray-900 group">
+        <div className="relative w-full overflow-hidden bg-gray-900 group md:rounded-none rounded-2xl mx-3 md:mx-0" style={{ width: 'calc(100% - 24px)' }}>
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
                     {banners.map((slide) => (
-                        <div key={slide.id} className="relative flex-[0_0_100%] min-w-0 aspect-[4/3] md:aspect-auto md:h-[calc(100vh-80px)]">
+                        <div key={slide.id} className="relative flex-[0_0_100%] min-w-0 aspect-[16/9] md:aspect-auto md:h-[calc(100vh-80px)]">
                             {!loadedImages.has(slide.id) && (
                                 <div className="absolute inset-0 bg-gray-800 animate-pulse" />
                             )}

@@ -28,6 +28,10 @@ const FeaturedBrands = dynamic(() => import("@/components/home/featured-brands")
   loading: () => <div className="h-48 w-full bg-white animate-pulse" />,
 });
 
+const RecentlyViewed = dynamic(() => import("@/components/home/recently-viewed").then((mod) => mod.RecentlyViewed), {
+  ssr: false,
+});
+
 interface Category {
   id: string;
   name: string;
@@ -185,6 +189,9 @@ export default function HomePage() {
       {/* Hero Section with Carousel */}
       <HeroCarousel />
 
+      {/* Recently Viewed */}
+      <RecentlyViewed />
+
       {/* Drops Section  */}
       <DropsSection />
 
@@ -196,7 +203,7 @@ export default function HomePage() {
 
       <section className="py-4 md:py-8 bg-gray-50" aria-labelledby="bestsellers-title">
         <div className="w-full relative group/section">
-          <div className="flex flex-wrap gap-2 md:gap-3 justify-center mb-4 md:mb-12 px-3" role="tablist" aria-label="Filter by category">
+          <div className="flex md:flex-wrap gap-2 md:gap-3 md:justify-center mb-4 md:mb-12 px-3 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Filter by category">
             <button
               onClick={() => setSelectedCategory(null)}
               className={`font-semibold px-4 py-1.5 md:px-6 md:py-2 rounded-full shadow-md transition-colors text-[13px] md:text-base ${selectedCategory === null

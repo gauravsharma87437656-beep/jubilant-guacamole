@@ -11,6 +11,8 @@ import { useParams } from "next/navigation";
 import { RentalCalendar } from "@/components/product/rental-calendar";
 import { addDays } from "date-fns";
 import useEmblaCarousel from "embla-carousel-react";
+import { addRecentlyViewed } from "@/lib/recently-viewed";
+import { useSession } from "next-auth/react";
 
 interface DateRange {
   startDate: string;
@@ -51,6 +53,7 @@ export default function ProductPage() {
   const calendarRef = useRef<HTMLDivElement>(null);
   const bookingRef = useRef<HTMLDivElement>(null);
   const addItem = useCartStore((state) => state.addItem);
+  const { data: session } = useSession();
 
   // Embla carousel for mobile images
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -101,6 +104,19 @@ export default function ProductPage() {
     }
     fetchProduct();
   }, [params.id]);
+
+  // Track recently viewed
+  useEffect(() => {
+    if (product) {
+      addRecentlyViewed({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        image: product.images[0],
+        dailyPrice: product.dailyPrice,
+      }, session?.user?.id);
+    }
+  }, [product, session?.user?.id]);
 
   if (loading) {
     return (
