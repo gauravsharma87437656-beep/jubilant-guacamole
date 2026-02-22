@@ -66,7 +66,7 @@ export default function AdminDropsPage() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchData();
@@ -213,22 +213,20 @@ export default function AdminDropsPage() {
       <div className="flex gap-2 mb-6 border-b border-slate-200">
         <button
           onClick={() => setActiveTab("drops")}
-          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "drops"
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === "drops"
               ? "border-rose-600 text-rose-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
         >
           <span className="material-symbols-outlined text-[18px] mr-1 align-middle">auto_awesome</span>
           Current Drops ({featuredProducts.length})
         </button>
         <button
           onClick={() => setActiveTab("add")}
-          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "add"
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === "add"
               ? "border-rose-600 text-rose-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
         >
           <span className="material-symbols-outlined text-[18px] mr-1 align-middle">add_circle</span>
           Add Existing ({availableProducts.length})

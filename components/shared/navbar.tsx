@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, User, Menu, X, LogOut, Search, Layers } from "lucide-react";
+import { ShoppingCart, User, Menu, X, LogOut, Search, Layers, ChevronDown, Package, MapPin, Star, Settings } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useCartStore } from "@/store/cart";
 import { Button } from "@/components/ui/button";
@@ -89,8 +89,13 @@ export function Navbar() {
     return "/dashboard/customer";
   };
 
+  const isMobileHiddenPage = pathname === "/cart" || pathname?.startsWith("/profile");
+
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+    <header className={cn(
+      "sticky top-0 z-50 bg-white border-b border-gray-200",
+      isMobileHiddenPage && "hidden md:block" // Hide on mobile for specific pages where we use custom headers
+    )}>
       <nav className="w-full px-4 md:px-8 relative">
         <div className="flex h-16 items-center justify-between">
 
@@ -205,44 +210,95 @@ export function Navbar() {
             {status === "loading" ? (
               <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse order-2 md:order-3" />
             ) : session ? (
-              <div className="relative order-2 md:order-3">
+              <div
+                className="relative order-2 md:order-3 group"
+                onMouseEnter={() => setUserMenuOpen(true)}
+                onMouseLeave={() => setUserMenuOpen(false)}
+              >
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 text-sm font-medium text-black hover:text-gray-900 cursor-pointer"
+                  className="flex items-center space-x-2 text-sm font-medium text-black hover:text-gray-900 cursor-pointer py-1"
                 >
                   <div className="h-8 w-8 rounded-full bg-rose-100 flex items-center justify-center">
                     <User className="h-4 w-4 text-rose-600" />
                   </div>
-                  <span className="hidden lg:inline">{session.user?.name || "Profile"}</span>
+                  <span className="hidden lg:flex items-center gap-1">
+                    {session.user?.name || "Profile"}
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  </span>
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1">
+                  <div className="absolute right-0 top-full mt-1 w-64 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] ring-1 ring-black/5 z-50 overflow-hidden transform opacity-100 transition-all duration-200">
+                    <div className="p-4 border-b border-gray-100">
+                      <p className="text-sm font-bold text-gray-900 mb-1">Your Account</p>
+                    </div>
+                    <div className="py-2">
+                      {session?.user?.role !== "USER" && (
+                        <Link
+                          href={getDashboardLink()}
+                          prefetch={false}
+                          className="flex items-center gap-3 px-4 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <Layers className="h-[18px] w-[18px]" />
+                          <span>Admin Dashboard</span>
+                        </Link>
+                      )}
                       <Link
-                        href={getDashboardLink()}
+                        href="/profile"
                         prefetch={false}
-                        className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                        className="flex items-center gap-3 px-4 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        Dashboard
+                        <User className="h-[18px] w-[18px]" />
+                        <span>My Profile</span>
                       </Link>
                       <Link
-                        href="/dashboard/customer/profile"
+                        href="/profile/orders"
                         prefetch={false}
-                        className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                        className="flex items-center gap-3 px-4 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        My Profile
+                        <Package className="h-[18px] w-[18px]" />
+                        <span>Orders</span>
                       </Link>
+                      <Link
+                        href="/profile/addresses"
+                        prefetch={false}
+                        className="flex items-center gap-3 px-4 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <MapPin className="h-[18px] w-[18px]" />
+                        <span>Saved Addresses</span>
+                      </Link>
+                      <Link
+                        href="/profile/reviews"
+                        prefetch={false}
+                        className="flex items-center gap-3 px-4 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Star className="h-[18px] w-[18px]" />
+                        <span>Reviews</span>
+                      </Link>
+                      <Link
+                        href="/profile/settings"
+                        prefetch={false}
+                        className="flex items-center gap-3 px-4 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Settings className="h-[18px] w-[18px]" />
+                        <span>Settings</span>
+                      </Link>
+                      <div className="border-t border-gray-100 my-1"></div>
                       <button
                         onClick={() => {
                           setUserMenuOpen(false);
                           handleSignOut();
                         }}
-                        className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors text-left"
                       >
-                        <LogOut className="h-4 w-4 inline mr-2" />
-                        Sign Out
+                        <LogOut className="h-[18px] w-[18px]" />
+                        <span>Logout</span>
                       </button>
                     </div>
                   </div>

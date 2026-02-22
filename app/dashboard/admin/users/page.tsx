@@ -33,7 +33,7 @@ export default function AdminUsersPage() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchUsers();

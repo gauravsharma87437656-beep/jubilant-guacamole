@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, ShoppingBag, ArrowRight, Heart, ArrowLeft, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Shield, Info, Minus, Plus, X } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight, Heart, ArrowLeft, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Shield, Info } from "lucide-react";
 import { useCartStore, CartItem } from "@/store/cart";
 import { useSession } from "next-auth/react";
 import { RentalCalendar } from "@/components/product/rental-calendar";
@@ -102,42 +102,16 @@ function CartItemCard({ item }: { item: CartItem }) {
             </div>
           </Link>
 
-          <div className="flex flex-col justify-center md:hidden flex-1 min-w-0 pr-6">
+          <div className="flex flex-col justify-center md:hidden flex-1 min-w-0">
             <Link href={`/product/${item.productId}`}>
-              <h3 className="font-semibold text-gray-900 leading-tight line-clamp-2 text-[14px]">
+              <h3 className="font-bold text-gray-900 leading-tight line-clamp-2 text-base">
                 {item.productName}
               </h3>
             </Link>
-            {item.variantSize && (
-              <span className="text-[12px] font-medium text-gray-500 mt-1">Size: {item.variantSize}</span>
-            )}
-
-            <div className="flex items-center justify-between mt-3 w-full">
-              <span className="text-[16px] font-bold text-gray-900 tracking-tight">${item.dailyPrice.toFixed(2)}</span>
-
-              <div className="flex items-center gap-3 bg-gray-50/80 rounded-full px-2 py-1 border border-gray-100/50 mr-4">
-                <button
-                  onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.variantId)}
-                  className="p-1 text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-50"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-3 text-center font-medium text-gray-900 text-[13px]">{item.quantity}</span>
-                <button
-                  onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                  className="p-1 text-gray-500 hover:text-gray-900 transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-[10px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Γé╣{item.dailyPrice}/day</span>
             </div>
           </div>
-          <button
-            onClick={() => removeItem(item.productId, item.variantId)}
-            className="absolute top-4 right-4 md:hidden text-red-400 hover:text-red-500 transition-colors bg-white rounded-full flex items-center justify-center border border-red-200 p-0.5"
-          >
-            <X className="w-4 h-4" strokeWidth={2.5} />
-          </button>
         </div>
 
         {/* Right Section: Configuration and Pricing */}
@@ -153,7 +127,7 @@ function CartItemCard({ item }: { item: CartItem }) {
               <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 font-medium">
                 <span>Refined Style</span>
                 <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-                <span>₹{item.dailyPrice}/day</span>
+                <span>Γé╣{item.dailyPrice}/day</span>
               </div>
             </div>
             <button
@@ -271,11 +245,11 @@ function CartItemCard({ item }: { item: CartItem }) {
                 <div className="flex items-center gap-3 mb-1">
                   <span className="text-[9px] sm:text-[11px] font-black text-rose-500 uppercase tracking-widest">Total Rental</span>
                   <span className="text-xl sm:text-2xl font-black text-gray-900 tracking-tighter">
-                    ₹{(item.dailyPrice * localRentalDays * item.quantity).toLocaleString()}
+                    Γé╣{(item.dailyPrice * localRentalDays * item.quantity).toLocaleString()}
                   </span>
                 </div>
                 <p className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                  Incl. {localRentalDays} days · Qty: {item.quantity}
+                  Incl. {localRentalDays} days ┬╖ Qty: {item.quantity}
                 </p>
               </div>
             </div>
@@ -459,7 +433,7 @@ export default function CartPage() {
                                 {item.variantSize && (
                                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Size: {item.variantSize}</span>
                                 )}
-                                <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">₹{item.dailyPrice}/day</span>
+                                <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Γé╣{item.dailyPrice}/day</span>
                               </div>
                             </div>
                             <button
@@ -512,7 +486,7 @@ export default function CartPage() {
                         showBreakdown ? <ChevronUp className="h-4 w-4 text-gray-400 group-hover:text-rose-500" /> : <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-rose-500" />
                       )}
                     </span>
-                    <span className="text-gray-900">₹{subtotal.toFixed(2)}</span>
+                    <span className="text-gray-900">Γé╣{subtotal.toFixed(2)}</span>
                   </div>
 
                   {showBreakdown && items.length > 0 && (
@@ -523,8 +497,8 @@ export default function CartPage() {
                           : 3;
                         return (
                           <div key={item.id} className="flex justify-between text-[11px] text-gray-500 leading-tight">
-                            <span className="flex-1 pr-4 line-clamp-1">{item.productName} ({item.quantity}×{itemDays}d)</span>
-                            <span className="font-bold text-gray-700">₹{(item.dailyPrice * itemDays * item.quantity).toFixed(0)}</span>
+                            <span className="flex-1 pr-4 line-clamp-1">{item.productName} ({item.quantity}├ù{itemDays}d)</span>
+                            <span className="font-bold text-gray-700">Γé╣{(item.dailyPrice * itemDays * item.quantity).toFixed(0)}</span>
                           </div>
                         );
                       })}
@@ -542,14 +516,14 @@ export default function CartPage() {
                         showDepositBreakdown ? <ChevronUp className="h-4 w-4 text-gray-400 group-hover:text-rose-500" /> : <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-rose-500" />
                       )}
                     </span>
-                    <span className="text-gray-900">₹{totalDeposit.toFixed(2)}</span>
+                    <span className="text-gray-900">Γé╣{totalDeposit.toFixed(2)}</span>
                   </div>
                   {showDepositBreakdown && items.length > 0 && (
                     <div className="pl-4 pr-1 py-3 space-y-2 border-l-2 border-gray-100 bg-gray-50/50 rounded-r-2xl">
                       {items.map((item) => (
                         <div key={`dep-${item.id}`} className="flex justify-between text-[11px] text-gray-500">
-                          <span className="flex-1 pr-4 line-clamp-1">{item.productName} (×{item.quantity})</span>
-                          <span className="font-bold text-gray-700">₹{(item.depositAmount * item.quantity).toFixed(0)}</span>
+                          <span className="flex-1 pr-4 line-clamp-1">{item.productName} (├ù{item.quantity})</span>
+                          <span className="font-bold text-gray-700">Γé╣{(item.depositAmount * item.quantity).toFixed(0)}</span>
                         </div>
                       ))}
                     </div>
@@ -567,7 +541,7 @@ export default function CartPage() {
                         showPlatformBreakdown ? <ChevronUp className="h-4 w-4 text-gray-400 group-hover:text-rose-500" /> : <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-rose-500" />
                       )}
                     </span>
-                    <span className="text-gray-900">₹{platformFee.toFixed(2)}</span>
+                    <span className="text-gray-900">Γé╣{platformFee.toFixed(2)}</span>
                   </div>
                   {showPlatformBreakdown && items.length > 0 && (
                     <div className="pl-4 pr-1 py-2 space-y-1 border-l-2 border-emerald-50 bg-emerald-50/10 rounded-r-2xl">
@@ -584,7 +558,7 @@ export default function CartPage() {
                 <div className="border-t border-gray-100 pt-5 mt-5">
                   <div className="flex justify-between items-baseline">
                     <span className="text-base font-black text-gray-900 uppercase tracking-widest">Total</span>
-                    <span className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tighter">₹{Math.round(total).toLocaleString()}</span>
+                    <span className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tighter">Γé╣{Math.round(total).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -627,46 +601,65 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* Sticky Mobile Checkout Bar - Stays above the global bottom dock! */}
+      {/* Sticky Mobile Checkout Bar */}
       {items.length > 0 && (
-        <div className="lg:hidden fixed bottom-[72px] sm:bottom-[80px] left-0 right-0 z-40 px-4">
-          <div className="bg-white rounded-[24px] border border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] p-5 w-full flex flex-col gap-4 mx-auto max-w-md">
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-[13px] font-medium text-gray-500">
-                <span>Subtotal</span>
-                <span className="font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+        <div className="lg:hidden fixed bottom-1 left-0 right-0 z-50">
+          {/* Detailed Breakdown Tooltip/Panel */}
+          <div className={`mx-4 mb-3 bg-white rounded-[2rem] border border-gray-100 shadow-2xl p-6 transition-all duration-500 ease-out origin-bottom ${showMobileDetail ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-10 pointer-events-none'}`}>
+            <h3 className="text-sm font-black text-gray-900 mb-5 px-1 tracking-widest uppercase">Rental Breakdown</h3>
+            <div className="space-y-3.5">
+              <div className="flex justify-between text-xs font-bold text-gray-400">
+                <span>Subtotal ({rentalCount})</span>
+                <span className="text-gray-900 font-black">Γé╣{subtotal.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between items-center text-[13px] font-medium text-gray-500">
-                <span>Shipping</span>
-                <span className="font-bold text-gray-900">${(items.length > 0 ? 2 : 0).toFixed(2)}</span>
+              <div className="flex justify-between text-xs font-bold text-gray-400">
+                <span>Refundable Deposit</span>
+                <span className="text-gray-900 font-black">Γé╣{totalDeposit.toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between text-xs font-bold text-gray-400">
+                <span>Service Fee (5%)</span>
+                <span className="text-gray-900 font-black">Γé╣{platformFee.toFixed(0)}</span>
+              </div>
+              <div className="pt-4 mt-1 border-t border-gray-50 flex justify-between items-baseline">
+                <span className="text-xs font-black text-gray-900 uppercase tracking-widest">Total Payable</span>
+                <span className="text-2xl font-black text-rose-600 tracking-tighter">Γé╣{Math.round(total).toLocaleString()}</span>
+              </div>
+              <div className="bg-emerald-50/50 p-2.5 rounded-xl flex items-start gap-2 mt-4">
+                <Shield className="h-3.5 w-3.5 text-emerald-500 mt-0.5" />
+                <p className="text-[9px] font-bold text-emerald-600 leading-normal uppercase tracking-wider">Deposit is 100% refundable after return</p>
               </div>
             </div>
+          </div>
 
-            <div className="h-[1px] bg-gray-50 w-full" />
-
-            <div className="flex justify-between items-end">
-              <span className="text-[17px] font-extrabold text-gray-900 tracking-tight">Total</span>
-              <span className="text-[19px] font-extrabold text-gray-900 tracking-tight">${(subtotal + (items.length > 0 ? 2 : 0)).toFixed(2)}</span>
+          {/* Main Footer Bar */}
+          <div className="bg-white/95 backdrop-blur-xl border-t border-gray-100 p-3 sm:p-4 pb-8 sm:pb-4 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.12)] flex items-center justify-between gap-4 mx-0 rounded-t-[2rem]">
+            <div className="flex flex-col pl-2">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[8px] font-black text-gray-400 uppercase tracking-[0.15em]">Total Payable</span>
+                <button
+                  onClick={() => setShowMobileDetail(!showMobileDetail)}
+                  className={`p-1 rounded-full transition-all ${showMobileDetail ? 'bg-rose-500 text-white scale-110' : 'text-gray-300 hover:text-rose-400'}`}
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <span className="text-xl font-black text-gray-900 tracking-tighter">Γé╣{Math.round(total).toLocaleString()}</span>
             </div>
 
             <Button
-              className="w-full bg-[#111111] hover:bg-black text-white font-bold h-[52px] rounded-[16px] shadow-sm shadow-black/10 active:scale-[0.98] transition-all text-[15px] mt-2"
+              className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none text-white font-black h-13 rounded-xl shadow-lg shadow-rose-100 transition-all active:scale-95 text-sm uppercase tracking-widest"
               onClick={handleCheckout}
               disabled={items.length === 0}
             >
-              {status === "loading"
-                ? "Loading..."
-                : status === "unauthenticated"
-                  ? "Sign In to Checkout"
-                  : "Checkout"}
+              Place Order
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
       )}
 
-      {/* Content Spacer for Sticky Bar + Bottom Dock space */}
-      <div className="h-[300px] lg:hidden"></div>
+      {/* Content Spacer for Sticky Bar */}
+      <div className="h-32 lg:hidden"></div>
     </div>
   );
 }

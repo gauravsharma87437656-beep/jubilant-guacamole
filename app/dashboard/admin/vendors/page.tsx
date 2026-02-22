@@ -35,7 +35,7 @@ export default function AdminVendorsPage() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchVendors();
@@ -107,8 +107,8 @@ export default function AdminVendorsPage() {
             key={status}
             onClick={() => setFilter(status)}
             className={`px-4 py-2 rounded-lg text-sm font-medium ${filter === status
-                ? "bg-rose-600 text-white"
-                : "bg-white text-gray-600 border border-slate-200 hover:bg-slate-50"
+              ? "bg-rose-600 text-white"
+              : "bg-white text-gray-600 border border-slate-200 hover:bg-slate-50"
               }`}
           >
             {status}
@@ -148,8 +148,8 @@ export default function AdminVendorsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${vendor.status === "APPROVED" ? "bg-green-100 text-green-600" :
-                          vendor.status === "REJECTED" ? "bg-red-100 text-red-600" :
-                            "bg-yellow-100 text-yellow-600"
+                        vendor.status === "REJECTED" ? "bg-red-100 text-red-600" :
+                          "bg-yellow-100 text-yellow-600"
                         }`}>
                         {vendor.status}
                       </span>

@@ -29,6 +29,12 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Blur active element to hide mobile keyboard immediately
+    if (typeof document !== 'undefined' && document.activeElement) {
+      (document.activeElement as HTMLElement).blur();
+    }
+
     setError("");
 
     // Validate passwords match
@@ -66,7 +72,7 @@ export default function SignupPage() {
       });
 
       if (result?.ok) {
-        router.push("/dashboard/customer");
+        router.push("/profile");
         router.refresh();
       }
     } catch (err) {
@@ -77,7 +83,7 @@ export default function SignupPage() {
   };
 
   const handleGoogleLogin = () => {
-    signIn("google", { callbackUrl: "/dashboard/customer" });
+    signIn("google", { callbackUrl: "/profile" });
   };
 
   if (status === "loading") {

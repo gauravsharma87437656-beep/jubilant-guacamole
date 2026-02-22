@@ -212,7 +212,7 @@ export default function CheckoutPage() {
                 {addresses.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-gray-500 mb-4">No addresses saved</p>
-                    <Link href="/dashboard/customer/addresses">
+                    <Link href="/profile/addresses">
                       <Button>Add New Address</Button>
                     </Link>
                   </div>
@@ -260,9 +260,8 @@ export default function CheckoutPage() {
                         </div>
                       </label>
                     ))}
-
                     <Link
-                      href="/dashboard/customer/addresses"
+                      href="/profile/addresses"
                       className="block text-center text-rose-600 hover:text-rose-700 text-sm"
                     >
                       + Add New Address
@@ -559,6 +558,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

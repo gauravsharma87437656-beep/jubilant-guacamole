@@ -34,7 +34,7 @@ export default function VendorSignupPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === "businessName") {
       const slug = value.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-");
       setFormData((prev) => ({ ...prev, businessName: value, businessSlug: slug }));
@@ -83,7 +83,7 @@ export default function VendorSignupPage() {
           <p className="mt-2 text-gray-600">
             Your vendor application has been submitted for review. You will be notified once an admin approves your request.
           </p>
-          <Button onClick={() => router.push("/dashboard/customer")} className="mt-6">
+          <Button onClick={() => router.push("/profile")} className="mt-6">
             Go to Dashboard
           </Button>
         </div>

@@ -40,7 +40,7 @@ export default function AdminDisputesPage() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchDisputes();
@@ -118,8 +118,8 @@ export default function AdminDisputesPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`text-[11px] font-bold px-2 py-1 rounded uppercase ${dispute.type === "DAMAGE" ? "bg-red-100 text-red-600" :
-                          dispute.type === "LATE_RETURN" ? "bg-orange-100 text-orange-600" :
-                            "bg-slate-100 text-gray-600"
+                        dispute.type === "LATE_RETURN" ? "bg-orange-100 text-orange-600" :
+                          "bg-slate-100 text-gray-600"
                         }`}>
                         {dispute.type.replace("_", " ")}
                       </span>

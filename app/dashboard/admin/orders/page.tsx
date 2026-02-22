@@ -43,7 +43,7 @@ export default function AdminOrdersPage() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchOrders();
@@ -175,9 +175,9 @@ export default function AdminOrdersPage() {
                     <td className="px-6 py-4 text-sm font-bold text-gray-900">₹{order.totalPrice.toLocaleString()}</td>
                     <td className="px-6 py-4">
                       <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${order.status === "COMPLETED" ? "bg-green-100 text-green-600" :
-                          order.status === "PENDING" ? "bg-yellow-100 text-yellow-600" :
-                            order.status === "CANCELLED" ? "bg-red-100 text-red-600" :
-                              "bg-blue-100 text-blue-600"
+                        order.status === "PENDING" ? "bg-yellow-100 text-yellow-600" :
+                          order.status === "CANCELLED" ? "bg-red-100 text-red-600" :
+                            "bg-blue-100 text-blue-600"
                         }`}>
                         {order.status}
                       </span>

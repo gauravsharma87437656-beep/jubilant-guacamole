@@ -63,11 +63,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Custom Utilities for High Contrast */
 .text-contrast-high {
   @apply text-slate-900 dark:text-slate-100;
 }
 
 .bg-contrast-low {
   @apply bg-slate-50 dark:bg-slate-900;
+}
+
+/* Hide mobile dock elements when keyboard is open (viewport height shrinks) */
+@media screen and (max-height: 600px) {
+  .mobile-dock-container {
+    display: none !important;
+  }
 }

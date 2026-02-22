@@ -37,7 +37,7 @@ export default function CheckoutSuccessPage() {
           </div>
 
           <div className="space-y-3">
-            <Link href="/dashboard/customer/rentals">
+            <Link href="/profile/orders">
               <Button className="w-full bg-rose-600 hover:bg-rose-700">
                 View My Orders
                 <ArrowRight className="ml-2 h-4 w-4" />

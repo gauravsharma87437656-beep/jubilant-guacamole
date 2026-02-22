@@ -45,7 +45,7 @@ export default function AdminBannersPage() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchBanners();
@@ -220,8 +220,8 @@ export default function AdminBannersPage() {
               <div className="absolute top-2 right-2 flex gap-1">
                 <span
                   className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${banner.isActive
-                      ? "bg-green-100 text-green-600"
-                      : "bg-red-100 text-red-600"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-red-100 text-red-600"
                     }`}
                 >
                   {banner.isActive ? "Active" : "Inactive"}

@@ -69,7 +69,7 @@ export default function AdminFinancePage() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchData();
@@ -81,10 +81,10 @@ export default function AdminFinancePage() {
         fetch(`/api/admin/finance`),
         fetch(`/api/admin/payouts`)
       ]);
-      
+
       const financeData = await financeRes.json();
       const payoutsData = await payoutsRes.json();
-      
+
       setTransactions(financeData.transactions || []);
       setStats(financeData.stats || { totalInEscrow: 0, totalReleased: 0, pendingReleases: 0, pendingPayouts: 0 });
       setPayouts(payoutsData.payouts || []);
@@ -178,21 +178,19 @@ export default function AdminFinancePage() {
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab("escrow")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "escrow"
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "escrow"
                 ? "border-rose-500 text-rose-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
+              }`}
           >
             Escrow Transactions
           </button>
           <button
             onClick={() => setActiveTab("payouts")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "payouts"
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "payouts"
                 ? "border-rose-500 text-rose-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
+              }`}
           >
             Vendor Payouts
             {payouts.filter(p => p.status === "PENDING").length > 0 && (
@@ -259,15 +257,15 @@ export default function AdminFinancePage() {
                         <td className="px-6 py-4 text-sm font-bold text-gray-900">₹{tx.amount.toLocaleString()}</td>
                         <td className="px-6 py-4">
                           <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${tx.type === "ESCROW_HOLD" ? "bg-yellow-100 text-yellow-600" :
-                              "bg-green-100 text-green-600"
+                            "bg-green-100 text-green-600"
                             }`}>
                             {tx.type === "ESCROW_HOLD" ? "Hold" : "Release"}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${tx.status === "COMPLETED" ? "bg-green-100 text-green-600" :
-                              tx.status === "PENDING" ? "bg-yellow-100 text-yellow-600" :
-                                "bg-red-100 text-red-600"
+                            tx.status === "PENDING" ? "bg-yellow-100 text-yellow-600" :
+                              "bg-red-100 text-red-600"
                             }`}>
                             {tx.status}
                           </span>
@@ -347,12 +345,11 @@ export default function AdminFinancePage() {
                         ₹{Number(payout.netAmount).toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${
-                          payout.status === "COMPLETED" ? "bg-green-100 text-green-600" :
-                          payout.status === "PENDING" ? "bg-yellow-100 text-yellow-600" :
-                          payout.status === "PROCESSING" ? "bg-blue-100 text-blue-600" :
-                          "bg-red-100 text-red-600"
-                        }`}>
+                        <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${payout.status === "COMPLETED" ? "bg-green-100 text-green-600" :
+                            payout.status === "PENDING" ? "bg-yellow-100 text-yellow-600" :
+                              payout.status === "PROCESSING" ? "bg-blue-100 text-blue-600" :
+                                "bg-red-100 text-red-600"
+                          }`}>
                           {payout.status}
                         </span>
                       </td>

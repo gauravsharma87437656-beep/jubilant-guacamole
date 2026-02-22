@@ -1,5 +1,8 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 const footerLinks = {
   company: [
     { name: "About Us", href: "/about" },
@@ -23,8 +26,11 @@ const footerLinks = {
 };
 
 export function Footer() {
+  const pathname = usePathname();
+  const isMobileHiddenPage = pathname === "/cart" || pathname?.startsWith("/profile") || pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
+
   return (
-    <footer className="bg-gray-50 text-gray-600">
+    <footer className={cn("bg-gray-50 text-gray-600", isMobileHiddenPage && "hidden md:block")}>
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}

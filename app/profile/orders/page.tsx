@@ -1,10 +1,10 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clock, ArrowLeft, Loader2, Package, Calendar, MapPin, CreditCard } from "lucide-react";
+import { Package, ArrowLeft, Loader2, Calendar, MapPin } from "lucide-react";
 
 interface RentalItem {
   id: string;
@@ -32,8 +32,11 @@ interface Rental {
     firstName: string;
     lastName: string;
     address1: string;
+    address2?: string;
     city: string;
     state: string;
+    postalCode: string;
+    country: string;
   };
   items: RentalItem[];
   payment?: {
@@ -46,9 +49,17 @@ const statusColors: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-800",
   CONFIRMED: "bg-blue-100 text-blue-800",
   SHIPPED: "bg-purple-100 text-purple-800",
+  DELIVERED: "bg-green-100 text-green-800",
+  ACTIVE: "bg-green-100 text-green-800",
+  RETURN_REQUESTED: "bg-orange-100 text-orange-800",
+  RETURNED: "bg-gray-100 text-gray-800",
+  LATE: "bg-red-100 text-red-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  DISPUTED: "bg-red-100 text-red-800",
 };
 
-export default function CustomerUpcomingPage() {
+export default function CustomerRentalsPage() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,13 +70,7 @@ export default function CustomerUpcomingPage() {
         .then((res) => res.json())
         .then((data) => {
           if (data.rentals) {
-            // Filter upcoming rentals (start date is in the future)
-            const now = new Date();
-            const upcoming = data.rentals.filter((r: Rental) => {
-              const startDate = new Date(r.rentalStartDate);
-              return (r.status === "CONFIRMED" || r.status === "SHIPPED" || r.status === "PENDING") && startDate > now;
-            });
-            setRentals(upcoming);
+            setRentals(data.rentals);
           }
         })
         .catch((err) => console.error("Failed to fetch rentals:", err))
@@ -105,14 +110,14 @@ export default function CustomerUpcomingPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <Link href="/dashboard/customer" className="inline-flex items-center text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+          <Link href="/profile" className="inline-flex items-center text-gray-600 hover:text-gray-900">
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back
           </Link>
         </div>
-        
+
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Upcoming Rentals</h1>
-          <p className="mt-2 text-gray-600">See your scheduled rentals</p>
+          <h1 className="text-3xl font-bold text-gray-900">My Rentals</h1>
+          <p className="mt-2 text-gray-600">View and manage your active and past rentals</p>
         </div>
 
         {loading ? (
@@ -121,9 +126,9 @@ export default function CustomerUpcomingPage() {
           </div>
         ) : rentals.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <Clock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900">No Upcoming Rentals</h2>
-            <p className="mt-2 text-gray-600">You have no upcoming rentals. Browse our collection to find something to rent!</p>
+            <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900">No Rentals Yet</h2>
+            <p className="mt-2 text-gray-600">You haven't placed any orders yet. Start browsing our collection!</p>
             <Link href="/categories" className="mt-4 inline-block text-rose-600 hover:text-rose-700 font-medium">
               Browse Categories
             </Link>
@@ -171,6 +176,12 @@ export default function CustomerUpcomingPage() {
                           <Link href={`/product/${item.productId}`} className="font-medium text-gray-900 hover:text-primary">
                             {item.productName}
                           </Link>
+                          {item.variantSize && (
+                            <p className="text-sm text-gray-500">Size: {item.variantSize}</p>
+                          )}
+                          {item.variantColor && (
+                            <p className="text-sm text-gray-500">Color: {item.variantColor}</p>
+                          )}
                           <p className="text-sm text-gray-500">
                             {item.rentalDays} day(s) × {formatCurrency(item.dailyPrice)}/day
                           </p>
@@ -183,20 +194,35 @@ export default function CustomerUpcomingPage() {
                   </div>
                 </div>
 
-                {/* Rental Period */}
+                {/* Order Details */}
                 <div className="border-t border-gray-100 px-4 py-3 bg-gray-50">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-500">Rental Period:</span>
-                    <span className="font-medium text-gray-900">
-                      {formatDate(rental.rentalStartDate)} - {formatDate(rental.rentalEndDate)}
-                    </span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-start gap-2">
+                      <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-gray-500">Rental Period</p>
+                        <p className="text-gray-900">
+                          {formatDate(rental.rentalStartDate)} - {formatDate(rental.rentalEndDate)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-gray-500">Delivery Address</p>
+                        <p className="text-gray-900">
+                          {rental.shippingAddress.firstName} {rental.shippingAddress.lastName}, {rental.shippingAddress.city}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Order Total */}
                 <div className="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
-                  <div></div>
+                  <div className="text-sm text-gray-500">
+                    Deposit: {formatCurrency(Number(rental.depositAmount))}
+                  </div>
                   <div className="text-right">
                     <span className="text-sm text-gray-500">Total: </span>
                     <span className="text-lg font-bold text-gray-900">{formatCurrency(Number(rental.totalAmount))}</span>

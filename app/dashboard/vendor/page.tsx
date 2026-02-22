@@ -43,7 +43,7 @@ export default function VendorDashboardPage() {
       redirect("/login");
     }
     if (status === "authenticated" && session?.user?.role !== "VENDOR" && session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
   }, [status, session]);
 

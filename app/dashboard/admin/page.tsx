@@ -52,7 +52,7 @@ export default function AdminDashboard() {
     }
 
     if (session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
+      redirect("/profile");
     }
 
     fetchAdminData();

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
 import { InstagramBanner } from "@/components/shared/instagram-banner";
+import { MobileDock } from "@/components/shared/dock";
 import { Providers } from "@/components/providers";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { Toaster } from "@/components/ui/sonner";
@@ -84,6 +85,7 @@ export default function RootLayout({
             <Footer />
           </div>
           <CartDrawer />
+          <MobileDock />
           <Toaster />
         </Providers>
       </body>
