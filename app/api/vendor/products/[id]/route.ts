@@ -82,6 +82,27 @@ export async function PATCH(
     // Separate variants from the rest of the body
     const { variants, ...productData } = body;
 
+    // Sanitize optional foreign key fields: empty strings → null
+    if (productData.brandId === "" || productData.brandId === undefined) {
+      productData.brandId = null;
+    }
+    if (productData.occasionId === "" || productData.occasionId === undefined) {
+      productData.occasionId = null;
+    }
+    if (productData.categoryId === "") {
+      delete productData.categoryId;
+    }
+    // Convert price strings to numbers if they come as strings
+    if (typeof productData.dailyPrice === "string") {
+      productData.dailyPrice = parseFloat(productData.dailyPrice);
+    }
+    if (typeof productData.weeklyPrice === "string") {
+      productData.weeklyPrice = productData.weeklyPrice ? parseFloat(productData.weeklyPrice) : null;
+    }
+    if (typeof productData.depositAmount === "string") {
+      productData.depositAmount = parseFloat(productData.depositAmount);
+    }
+
     const product = await prisma.$transaction(async (tx) => {
       await tx.product.update({
         where: { id },

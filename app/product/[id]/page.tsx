@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, Truck, Shield, Calendar, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
+import { Star, Truck, Shield, Calendar, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, Loader2, ShoppingBag, Clock } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -11,8 +11,9 @@ import { useParams } from "next/navigation";
 import { RentalCalendar } from "@/components/product/rental-calendar";
 import { addDays } from "date-fns";
 import useEmblaCarousel from "embla-carousel-react";
-import { addRecentlyViewed } from "@/lib/recently-viewed";
+import { addRecentlyViewed, getRecentlyViewed, RecentlyViewedItem } from "@/lib/recently-viewed";
 import { useSession } from "next-auth/react";
+import { ProductCard } from "@/components/product/product-card";
 
 interface DateRange {
   startDate: string;
@@ -54,6 +55,8 @@ export default function ProductPage() {
   const bookingRef = useRef<HTMLDivElement>(null);
   const addItem = useCartStore((state) => state.addItem);
   const { data: session } = useSession();
+  const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedItem[]>([]);
+  const [similarProducts, setSimilarProducts] = useState<any[]>([]);
 
   // Embla carousel for mobile images
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -105,7 +108,7 @@ export default function ProductPage() {
     fetchProduct();
   }, [params.id]);
 
-  // Track recently viewed
+  // Track recently viewed + load recently viewed list
   useEffect(() => {
     if (product) {
       addRecentlyViewed({
@@ -115,8 +118,25 @@ export default function ProductPage() {
         image: product.images[0],
         dailyPrice: product.dailyPrice,
       }, session?.user?.id);
+
+      // Load recently viewed (exclude current product)
+      const viewed = getRecentlyViewed(session?.user?.id).filter(item => item.id !== product.id);
+      setRecentlyViewed(viewed.slice(0, 8));
     }
   }, [product, session?.user?.id]);
+
+  // Fetch similar products (same category)
+  useEffect(() => {
+    if (product?.category?.slug) {
+      fetch(`/api/products?category=${product.category.slug}&limit=8`)
+        .then(res => res.json())
+        .then(data => {
+          const filtered = (data.products || []).filter((p: any) => p.id !== product.id);
+          setSimilarProducts(filtered.slice(0, 8));
+        })
+        .catch(() => { });
+    }
+  }, [product?.id, product?.category?.slug]);
 
   if (loading) {
     return (
@@ -287,73 +307,74 @@ export default function ProductPage() {
             <div ref={bookingRef} className="lg:mt-0 bg-white border border-gray-100 rounded-[2rem] p-5 sm:p-8 shadow-sm scroll-mt-24">
               {/* Product Header inside Card */}
               <div className="mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-gray-50">
-                <Link href={`/vendor/${product.vendor.businessSlug}`} className="text-xs sm:text-sm font-bold text-rose-500 uppercase tracking-wider hover:text-rose-600 transition-colors">
+                <Link href={`/vendor/${product.vendor.businessSlug}`} className="text-xs sm:text-sm font-medium text-rose-500 uppercase tracking-wider hover:text-rose-600 transition-colors">
                   {product.vendor.businessName}
                 </Link>
-                <h1 className="text-2xl sm:text-4xl font-black text-gray-900 mt-2 tracking-tight leading-tight">{product.name}</h1>
-                <div className="flex items-center mt-4">
-                  <div className="flex items-center bg-gray-900 px-3 py-1.5 rounded-full shadow-sm hover:scale-[1.02] transition-transform">
+                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mt-2 tracking-tight leading-tight">{product.name}</h1>
+                <div className="flex items-center gap-3 mt-3">
+                  <div className="flex items-center gap-0.5">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-600"}`} />
+                      <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"}`} />
                     ))}
-                    <span className="ml-2 text-xs font-black text-white">{product.rating}</span>
                   </div>
-                  <span className="ml-3 text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest">({product.reviewCount} reviews)</span>
+                  <span className="text-sm font-medium text-gray-900">{product.rating}</span>
+                  <span className="text-sm text-gray-400">·</span>
+                  <span className="text-sm text-gray-400">{product.reviewCount} reviews</span>
                 </div>
               </div>
 
               {/* Pricing Header */}
-              <div className="flex flex-wrap justify-between gap-4 mb-8">
-                <div className="space-y-1 min-w-[100px]">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Rental Price</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div className="space-y-0.5">
+                  <p className="text-[9px] sm:text-[10px] font-normal text-gray-400 uppercase tracking-wider">Rental Price</p>
                   <div className="flex items-baseline">
-                    <span className="text-xl sm:text-2xl font-bold text-rose-600">₹{product.dailyPrice}</span>
-                    <span className="text-xs font-medium text-gray-400 ml-1">/day</span>
+                    <span className="text-lg sm:text-2xl font-semibold text-rose-600">₹{product.dailyPrice}</span>
+                    <span className="text-[10px] sm:text-xs font-normal text-gray-400 ml-0.5">/day</span>
                   </div>
                 </div>
-                <div className="space-y-1 min-w-[100px]">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Original Price</p>
-                  <p className="text-lg sm:text-xl font-medium text-gray-400 line-through">₹{Math.round(product.dailyPrice * 15)}</p>
+                <div className="space-y-0.5">
+                  <p className="text-[9px] sm:text-[10px] font-normal text-gray-400 uppercase tracking-wider">Original Price</p>
+                  <p className="text-base sm:text-xl font-normal text-gray-300 line-through">₹{Math.round(product.dailyPrice * 15)}</p>
                 </div>
-                <div className="space-y-1 min-w-[100px]">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Security Deposit</p>
-                  <p className="text-lg sm:text-xl font-bold text-gray-900">₹{product.depositAmount}</p>
+                <div className="space-y-0.5">
+                  <p className="text-[9px] sm:text-[10px] font-normal text-gray-400 uppercase tracking-wider">Deposit</p>
+                  <p className="text-base sm:text-xl font-medium text-gray-900">₹{product.depositAmount}</p>
                 </div>
               </div>
 
               {/* Booking Configuration Section (Reverted to Previous Layout) */}
-              <div className="space-y-6 mb-8">
+              <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
                 {/* Duration & Size Selection Row */}
-                <div className="flex flex-col sm:flex-row gap-6">
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-gray-700 mb-2 ml-1">Rent for how many days?</p>
-                    <div className="flex items-center border border-gray-200 rounded-xl w-fit overflow-hidden bg-white shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                  <div>
+                    <p className="text-[10px] sm:text-[11px] font-normal text-gray-500 uppercase tracking-widest mb-1.5 px-1">Duration</p>
+                    <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-10 sm:h-12">
                       <button
                         onClick={() => setRentalDays(Math.max(1, rentalDays - 1))}
-                        className="px-4 py-3 hover:bg-gray-50 transition-colors border-r border-gray-100"
+                        className="px-3 sm:px-4 h-full hover:bg-gray-50 transition-colors border-r border-gray-100"
                       >
-                        <ChevronLeft className="h-4 w-4 text-gray-500" />
+                        <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
                       </button>
-                      <span className="px-8 py-3 font-bold text-gray-900 min-w-[100px] text-center text-sm">
-                        {rentalDays} <span className="text-[10px] font-black text-gray-400 ml-1">DAYS</span>
+                      <span className="px-5 sm:px-8 font-medium text-gray-900 min-w-[70px] sm:min-w-[100px] text-center text-sm">
+                        {rentalDays} <span className="text-[9px] sm:text-[10px] font-medium text-gray-400 ml-0.5">DAYS</span>
                       </span>
                       <button
                         onClick={() => setRentalDays(rentalDays + 1)}
-                        className="px-4 py-3 hover:bg-gray-50 transition-colors border-l border-gray-100"
+                        className="px-3 sm:px-4 h-full hover:bg-gray-50 transition-colors border-l border-gray-100"
                       >
-                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                        <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
                       </button>
                     </div>
                   </div>
 
                   {sizes.length > 0 && (
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-gray-700 mb-2 ml-1">Select Size</p>
+                      <p className="text-[10px] sm:text-[11px] font-normal text-gray-500 uppercase tracking-widest mb-1.5 px-1">Size</p>
                       <div className="relative">
                         <select
                           value={selectedSize}
                           onChange={(e) => setSelectedSize(e.target.value)}
-                          className="w-full px-4 py-3 font-bold text-gray-900 bg-white border border-gray-200 rounded-xl outline-none cursor-pointer hover:border-rose-200 transition-all appearance-none shadow-sm"
+                          className="w-full px-4 h-10 sm:h-12 font-medium text-gray-900 bg-white border border-gray-200 rounded-full outline-none cursor-pointer hover:border-rose-200 transition-all appearance-none shadow-sm text-sm"
                         >
                           <option value="">Choose Size</option>
                           {sizes.map((size) => (
@@ -368,24 +389,33 @@ export default function ProductPage() {
                   )}
                 </div>
 
-                {/* Date Selectors Row (Two Columns) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-900 uppercase tracking-wider ml-1">Start Date</label>
+                {/* Date Selector - Combined Pill Bar (matching cart style) */}
+                <div>
+                  <p className="text-[10px] sm:text-[11px] font-normal text-gray-500 uppercase tracking-widest mb-1.5 px-1">Select Dates</p>
+                  <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-12 sm:h-14">
                     <button
                       onClick={() => setShowCalendar(!showCalendar)}
-                      className={`w-full flex items-center justify-between px-4 py-4 border border-gray-200 rounded-2xl transition-all text-sm font-bold ${showCalendar ? 'border-rose-300 ring-4 ring-rose-50' : 'hover:border-rose-200'
-                        } text-gray-900 bg-white shadow-sm`}
+                      className={`flex-1 flex items-center gap-2 sm:gap-3 px-3 sm:px-5 h-full transition-all hover:bg-gray-50 group/date ${showCalendar ? 'bg-rose-50/50' : ''}`}
                     >
-                      <span>{rentalStartDate ? rentalStartDate.toLocaleDateString("en-IN") : "Select Date"}</span>
-                      <Calendar className="h-5 w-5 text-gray-400" />
+                      <CalendarDays className={`h-4 w-4 ${showCalendar ? 'text-rose-500' : 'text-gray-400 group-hover/date:text-rose-400'}`} />
+                      <div className="flex flex-col items-start leading-none gap-0.5">
+                        <span className="text-[8px] sm:text-[9px] font-medium text-rose-500 uppercase">Start Date</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">
+                          {rentalStartDate ? rentalStartDate.toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) : "Pick Date"}
+                        </span>
+                      </div>
                     </button>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-900 uppercase tracking-wider ml-1">End Date</label>
-                    <div className="w-full flex items-center justify-between px-4 py-4 border border-gray-100 bg-gray-50/50 rounded-2xl text-sm font-bold text-gray-400 cursor-not-allowed">
-                      <span>{rentalStartDate ? addDays(rentalStartDate, rentalDays - 1).toLocaleDateString("en-IN") : "mm/dd/yyyy"}</span>
-                      <Calendar className="h-5 w-5 text-gray-300" />
+
+                    <div className="w-[1px] h-6 sm:h-8 bg-gray-100"></div>
+
+                    <div className="flex-1 flex items-center gap-2 sm:gap-3 px-3 sm:px-5 h-full bg-gray-50/20">
+                      <CalendarDays className="h-4 w-4 text-gray-300" />
+                      <div className="flex flex-col items-start leading-none gap-0.5">
+                        <span className="text-[8px] sm:text-[9px] font-medium text-gray-400 uppercase">Return Date</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap">
+                          {rentalStartDate ? addDays(rentalStartDate, rentalDays - 1).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) : "-"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -411,81 +441,110 @@ export default function ProductPage() {
 
               {/* Order Summary Box */}
               {rentalStartDate && (
-                <div className="bg-gray-50 rounded-2xl p-5 mb-6 space-y-3 border-2 border-gray-100">
+                <div className="bg-gray-50 rounded-2xl p-5 mb-6 space-y-3 border border-gray-100">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Rental ({rentalDays} days × ₹{product.dailyPrice})</span>
-                    <span className="font-bold text-gray-900">₹{total}</span>
+                    <span className="text-gray-500">Rental ({rentalDays} days × ₹{product.dailyPrice})</span>
+                    <span className="font-medium text-gray-900">₹{total}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Security Deposit (refundable)</span>
-                    <span className="font-bold text-gray-900">₹{product.depositAmount}</span>
+                    <span className="text-gray-500">Security Deposit (refundable)</span>
+                    <span className="font-medium text-gray-900">₹{product.depositAmount}</span>
                   </div>
-                  <div className="pt-3 border-t-2 border-gray-200 flex justify-between items-center">
-                    <span className="font-bold text-gray-900">Total Payable</span>
-                    <span className="text-xl font-black text-rose-600">₹{total + product.depositAmount}</span>
+                  <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
+                    <span className="font-medium text-gray-900">Total Payable</span>
+                    <span className="text-xl font-semibold text-rose-600">₹{total + product.depositAmount}</span>
                   </div>
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="space-y-3">
+              {/* Action Buttons - Side by Side */}
+              <div className="flex gap-3">
                 <Button
                   onClick={() => {
                     handleAddToCart();
-                    const router = (window as any).nextRouter || { push: (url: string) => window.location.href = url };
                     if (rentalStartDate) {
                       window.location.href = "/checkout";
                     }
                   }}
-                  size="xl"
-                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black text-lg h-16 rounded-2xl shadow-lg shadow-rose-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                  className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-medium text-sm sm:text-base h-12 sm:h-14 rounded-2xl shadow-lg shadow-rose-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
                 >
-                  Book Now — Pay with Razorpay
+                  Book Now
                 </Button>
 
                 <Button
                   onClick={handleAddToCart}
                   variant="outline"
-                  size="lg"
-                  className="w-full border-2 border-gray-200 text-gray-900 font-bold h-12 rounded-xl hover:bg-gray-50 transition-all"
+                  className="flex-1 border-2 border-gray-200 text-gray-900 font-medium text-sm sm:text-base h-12 sm:h-14 rounded-2xl hover:bg-gray-50 transition-all"
                 >
+                  <ShoppingBag className="h-4 w-4 mr-2" />
                   Add to Cart
                 </Button>
-              </div>
-
-              {/* Trust Signals */}
-              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                <Shield className="h-3 w-3" />
-                <span>Escrow protected</span>
-                <span className="text-gray-200">•</span>
-                <span>Deposit refunded in 7 days</span>
               </div>
             </div>
 
             <div className="mt-8">
-              <h3 className="text-lg font-bold text-gray-900">Description</h3>
-              <p className="mt-2 text-gray-600 leading-relaxed">{product.description}</p>
+              <h3 className="text-lg font-semibold text-gray-900">Description</h3>
+              <p className="mt-2 text-gray-600 leading-relaxed text-sm">{product.description}</p>
             </div>
 
             <div className="mt-8 border-t pt-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Product Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Details</h3>
               <dl className="grid grid-cols-2 gap-y-6 gap-x-8">
                 <div>
-                  <dt className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Condition</dt>
-                  <dd className="text-sm font-bold text-gray-900">{product.condition}</dd>
+                  <dt className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Condition</dt>
+                  <dd className="text-sm font-medium text-gray-900">{product.condition}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Brand</dt>
-                  <dd className="text-sm font-bold text-gray-900">{product.brand?.name || "N/A"}</dd>
+                  <dt className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Brand</dt>
+                  <dd className="text-sm font-medium text-gray-900">{product.brand?.name || "N/A"}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Category</dt>
-                  <dd className="text-sm font-bold text-gray-900">{product.category?.name || "N/A"}</dd>
+                  <dt className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Category</dt>
+                  <dd className="text-sm font-medium text-gray-900">{product.category?.name || "N/A"}</dd>
                 </div>
               </dl>
             </div>
           </div>
         </div>
+
+        {/* Recently Viewed Products */}
+        {recentlyViewed.length > 0 && (
+          <div className="mt-12 sm:mt-16">
+            <div className="flex items-center gap-2 mb-6">
+              <Clock className="h-5 w-5 text-gray-400" />
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recently Viewed</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-5">
+              {recentlyViewed.map((item) => (
+                <Link key={item.id} href={`/product/${item.slug || item.id}`} className="group">
+                  <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-gray-50 mb-2 group-hover:shadow-lg transition-shadow duration-300">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <h3 className="text-xs sm:text-sm font-medium text-gray-800 line-clamp-1">{item.name}</h3>
+                  <p className="text-xs sm:text-sm font-bold text-rose-600">₹{item.dailyPrice.toLocaleString('en-IN')}/day</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Similar Products */}
+        {similarProducts.length > 0 && (
+          <div className="mt-12 sm:mt-16">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">You May Also Like</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-5">
+              {similarProducts.map((p: any) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

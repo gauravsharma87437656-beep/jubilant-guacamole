@@ -22,7 +22,9 @@ import {
   CalendarDays,
   Hash,
   Layers,
+  Banknote,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface OrderItem {
   id: string;
@@ -164,9 +166,30 @@ export default function VendorOrdersPage() {
       });
       if (res.ok) {
         fetchOrders();
+        toast.success(`Order status updated to ${newStatus.toLowerCase()}`);
       }
     } catch (error) {
       console.error("Error updating order:", error);
+      toast.error("Failed to update order status");
+    }
+  };
+
+  const markCodCollected = async (orderId: string) => {
+    try {
+      const res = await fetch(`/api/vendor/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codCollected: true }),
+      });
+      if (res.ok) {
+        fetchOrders();
+        toast.success("COD payment marked as collected!");
+      } else {
+        toast.error("Failed to update payment");
+      }
+    } catch (error) {
+      console.error("Error marking COD:", error);
+      toast.error("Failed to mark COD as collected");
     }
   };
 
@@ -315,8 +338,8 @@ export default function VendorOrdersPage() {
               <div
                 key={order.id}
                 className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded
-                    ? "shadow-lg border-blue-200 ring-1 ring-blue-100"
-                    : "shadow-sm border-gray-100 hover:shadow-md hover:border-gray-200"
+                  ? "shadow-lg border-blue-200 ring-1 ring-blue-100"
+                  : "shadow-sm border-gray-100 hover:shadow-md hover:border-gray-200"
                   }`}
               >
                 {/* Compact Card Header — always visible */}
@@ -418,14 +441,14 @@ export default function VendorOrdersPage() {
                                 <p className="text-sm font-semibold text-gray-900 truncate">{order.customer.email}</p>
                               </div>
                             </div>
-                            {order.customer.phone && (
+                            {(order.customer.phone || order.shippingAddress?.phone) && (
                               <div className="flex items-center gap-2.5">
                                 <div className="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
                                   <Phone className="w-3.5 h-3.5 text-violet-600" />
                                 </div>
                                 <div className="min-w-0">
                                   <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Phone</p>
-                                  <p className="text-sm font-semibold text-gray-900">{order.customer.phone}</p>
+                                  <p className="text-sm font-semibold text-gray-900">{order.customer.phone || order.shippingAddress?.phone}</p>
                                 </div>
                               </div>
                             )}
@@ -535,16 +558,45 @@ export default function VendorOrdersPage() {
 
                         {/* Payment Info */}
                         {order.payment && (
-                          <div className="flex items-center gap-3 bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                              <CreditCard className="w-4 h-4 text-emerald-700" />
+                          <div className={`flex items-center gap-3 p-3.5 rounded-xl border ${order.payment.method === 'CASH_ON_DELIVERY' && order.payment.status !== 'COMPLETED'
+                            ? 'bg-amber-50/60 border-amber-200'
+                            : 'bg-emerald-50/60 border-emerald-100'
+                            }`}>
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${order.payment.method === 'CASH_ON_DELIVERY' && order.payment.status !== 'COMPLETED'
+                              ? 'bg-amber-100'
+                              : 'bg-emerald-100'
+                              }`}>
+                              {order.payment.method === 'CASH_ON_DELIVERY'
+                                ? <Banknote className={`w-4 h-4 ${order.payment.status !== 'COMPLETED' ? 'text-amber-700' : 'text-emerald-700'
+                                  }`} />
+                                : <CreditCard className="w-4 h-4 text-emerald-700" />
+                              }
                             </div>
-                            <div>
-                              <p className="text-[10px] text-emerald-500 font-semibold uppercase tracking-wider">Payment</p>
-                              <p className="text-sm font-bold text-emerald-900">
+                            <div className="flex-1">
+                              <p className={`text-[10px] font-semibold uppercase tracking-wider ${order.payment.method === 'CASH_ON_DELIVERY' && order.payment.status !== 'COMPLETED'
+                                ? 'text-amber-500'
+                                : 'text-emerald-500'
+                                }`}>Payment</p>
+                              <p className={`text-sm font-bold ${order.payment.method === 'CASH_ON_DELIVERY' && order.payment.status !== 'COMPLETED'
+                                ? 'text-amber-900'
+                                : 'text-emerald-900'
+                                }`}>
                                 {order.payment.method.replace(/_/g, " ")} • {order.payment.status}
                               </p>
                             </div>
+                            {/* COD Collection Button - Inline */}
+                            {order.payment.method === 'CASH_ON_DELIVERY' && order.payment.status !== 'COMPLETED' && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markCodCollected(order.id);
+                                }}
+                                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 active:scale-[0.97] transition-all font-semibold text-xs flex items-center gap-1.5 whitespace-nowrap shadow-sm"
+                              >
+                                <Banknote className="w-3.5 h-3.5" />
+                                Collected
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -642,18 +694,37 @@ export default function VendorOrdersPage() {
                             Mark as Delivered
                           </button>
                         )}
-                        {order.status === "DELIVERED" && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateOrderStatus(order.id, "COMPLETED");
-                            }}
-                            className="flex-1 px-4 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 active:scale-[0.98] transition-all font-bold shadow-sm shadow-gray-300 flex items-center justify-center gap-2 text-sm"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                            Complete Order
-                          </button>
-                        )}
+                        {order.status === "DELIVERED" && (() => {
+                          const rentalEndDate = new Date(order.endDate);
+                          rentalEndDate.setHours(23, 59, 59, 999);
+                          const now = new Date();
+                          const canComplete = now > rentalEndDate;
+                          const daysLeft = Math.max(0, Math.ceil((rentalEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+                          return (
+                            <div className="flex-1 flex flex-col gap-1.5">
+                              <button
+                                disabled={!canComplete}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (canComplete) updateOrderStatus(order.id, "COMPLETED");
+                                }}
+                                className={`w-full px-4 py-2.5 rounded-xl transition-all font-bold flex items-center justify-center gap-2 text-sm ${canComplete
+                                  ? "bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.98] shadow-sm shadow-gray-300"
+                                  : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
+                                  }`}
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                                {canComplete ? "Complete Order" : "Rental Period Active"}
+                              </button>
+                              {!canComplete && (
+                                <p className="text-[11px] text-gray-400 text-center font-medium">
+                                  Returns on {rentalEndDate.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {daysLeft} day{daysLeft !== 1 ? "s" : ""} left
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

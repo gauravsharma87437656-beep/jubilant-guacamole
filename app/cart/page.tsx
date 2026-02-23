@@ -238,7 +238,7 @@ function CartItemCard({ item }: { item: CartItem }) {
 
           {/* Pricing and Actions Bar */}
           <div className="mt-4 md:mt-8 pt-3 md:pt-6 border-t border-gray-50 flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
-            <div className="flex items-center gap-6 self-start">
+            <div className="hidden md:flex items-center gap-6 self-start">
               <div className="space-y-1">
                 <p className="text-[9px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-widest px-1">Quantity</p>
                 <div className="flex items-center bg-white border border-gray-100 rounded-full overflow-hidden shadow-sm h-9 sm:h-11 px-1">

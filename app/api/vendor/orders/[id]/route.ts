@@ -75,7 +75,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { status, trackingNumber } = body;
+    const { status, trackingNumber, codCollected } = body;
 
     const vendor = await prisma.vendor.findUnique({
       where: { userId: session.user.id },
@@ -88,6 +88,7 @@ export async function PATCH(
     // Verify the order belongs to this vendor
     const existingOrder = await prisma.rental.findFirst({
       where: { id, vendorId: vendor.id },
+      include: { payment: true },
     });
 
     if (!existingOrder) {
@@ -102,6 +103,17 @@ export async function PATCH(
       where: { id },
       data: updateData,
     });
+
+    // Handle COD payment collection
+    if (codCollected && existingOrder.payment) {
+      await prisma.payment.update({
+        where: { id: existingOrder.payment.id },
+        data: {
+          status: "COMPLETED",
+          processedAt: new Date(),
+        },
+      });
+    }
 
     return NextResponse.json({ order });
   } catch (error) {
