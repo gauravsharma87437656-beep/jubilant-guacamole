@@ -134,6 +134,7 @@ export default function VendorOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [codConfirmOrderId, setCodConfirmOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -584,18 +585,48 @@ export default function VendorOrdersPage() {
                                 {order.payment.method.replace(/_/g, " ")} • {order.payment.status}
                               </p>
                             </div>
-                            {/* COD Collection Button - Inline */}
+                            {/* COD Collection Button - Only show when DELIVERED */}
                             {order.payment.method === 'CASH_ON_DELIVERY' && order.payment.status !== 'COMPLETED' && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  markCodCollected(order.id);
-                                }}
-                                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 active:scale-[0.97] transition-all font-semibold text-xs flex items-center gap-1.5 whitespace-nowrap shadow-sm"
-                              >
-                                <Banknote className="w-3.5 h-3.5" />
-                                Collected
-                              </button>
+                              ['DELIVERED', 'COMPLETED'].includes(order.status) ? (
+                                codConfirmOrderId === order.id ? (
+                                  <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        markCodCollected(order.id);
+                                        setCodConfirmOrderId(null);
+                                      }}
+                                      className="px-2.5 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 active:scale-[0.97] transition-all font-semibold text-xs whitespace-nowrap shadow-sm"
+                                    >
+                                      Confirm
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCodConfirmOrderId(null);
+                                      }}
+                                      className="px-2.5 py-1.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 active:scale-[0.97] transition-all font-semibold text-xs whitespace-nowrap"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setCodConfirmOrderId(order.id);
+                                    }}
+                                    className="px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 active:scale-[0.97] transition-all font-semibold text-xs flex items-center gap-1.5 whitespace-nowrap shadow-sm"
+                                  >
+                                    <Banknote className="w-3.5 h-3.5" />
+                                    Collected
+                                  </button>
+                                )
+                              ) : (
+                                <span className="px-3 py-1.5 bg-gray-100 text-gray-400 rounded-lg font-semibold text-xs whitespace-nowrap cursor-not-allowed">
+                                  COD Pending
+                                </span>
+                              )
                             )}
                           </div>
                         )}

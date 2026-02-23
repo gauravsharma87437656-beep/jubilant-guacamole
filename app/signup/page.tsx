@@ -100,8 +100,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-start sm:items-center justify-center bg-gray-50 pt-4 sm:py-8 px-4 pb-24">
+      <div className="max-w-md w-full space-y-6">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
           <p className="mt-2 text-gray-600">Join Rent Culture today</p>

@@ -19,6 +19,7 @@ interface DateRange {
   startDate: string;
   endDate: string;
   reason?: string | null;
+  variantId?: string | null;
 }
 
 interface ProductData {
@@ -99,6 +100,14 @@ export default function ProductPage() {
         }
         const data = await res.json();
         setProduct(data.product);
+
+        // Auto-select first available size
+        if (data.product?.variants?.length > 0) {
+          const availableVariant = data.product.variants.find((v: any) => v.isAvailable);
+          if (availableVariant) {
+            setSelectedSize(availableVariant.size);
+          }
+        }
       } catch {
         setError("Product not found or unavailable");
       } finally {
@@ -128,11 +137,11 @@ export default function ProductPage() {
   // Fetch similar products (same category)
   useEffect(() => {
     if (product?.category?.slug) {
-      fetch(`/api/products?category=${product.category.slug}&limit=8`)
+      fetch(`/api/products?category=${product.category.slug}&limit=12`)
         .then(res => res.json())
         .then(data => {
           const filtered = (data.products || []).filter((p: any) => p.id !== product.id);
-          setSimilarProducts(filtered.slice(0, 8));
+          setSimilarProducts(filtered.slice(0, 12));
         })
         .catch(() => { });
     }
@@ -164,24 +173,60 @@ export default function ProductPage() {
     ? [...new Set(product.variants.filter(v => v.isAvailable && v.color).map(v => v.color!))]
     : [];
 
+  // Find selected variant by size
+  const selectedVariant = selectedSize
+    ? product.variants.find(v => v.size === selectedSize && v.isAvailable)
+    : null;
+  const selectedVariantId = selectedVariant?.id || null;
+  const variantInventory = selectedVariant?.inventory ?? 1;
+
   const total = product.dailyPrice * rentalDays;
 
-  // Check if any date in the selected rental range is unavailable
+  // Check if any date in the selected rental range is unavailable (variant-aware)
   const isRangeConflicting = (startDate: Date): boolean => {
-    const allUnavailable = [
-      ...product.bookedDates,
-      ...product.blockedDates,
-    ];
     for (let i = 0; i < rentalDays; i++) {
       const checkDate = addDays(startDate, i);
+      checkDate.setHours(0, 0, 0, 0);
       const checkTime = checkDate.getTime();
-      for (const range of allUnavailable) {
+
+      // Check blocked dates (always block all variants)
+      for (const range of product.blockedDates) {
         const rangeStart = new Date(range.startDate);
         const rangeEnd = new Date(range.endDate);
         rangeStart.setHours(0, 0, 0, 0);
         rangeEnd.setHours(23, 59, 59, 999);
         if (checkTime >= rangeStart.getTime() && checkTime <= rangeEnd.getTime()) {
           return true;
+        }
+      }
+
+      // Check booked dates per-variant
+      if (selectedVariantId) {
+        // Count how many bookings exist for this variant on this date
+        let bookingCount = 0;
+        for (const range of product.bookedDates) {
+          if (range.variantId !== selectedVariantId) continue;
+          const rangeStart = new Date(range.startDate);
+          const rangeEnd = new Date(range.endDate);
+          rangeStart.setHours(0, 0, 0, 0);
+          rangeEnd.setHours(23, 59, 59, 999);
+          if (checkTime >= rangeStart.getTime() && checkTime <= rangeEnd.getTime()) {
+            bookingCount++;
+          }
+        }
+        if (bookingCount >= variantInventory) {
+          return true;
+        }
+      } else if (product.variants.length === 0) {
+        // No variants — any booking blocks the date
+        for (const range of product.bookedDates) {
+          const rangeStart = new Date(range.startDate);
+          const rangeEnd = new Date(range.endDate);
+          rangeStart.setHours(0, 0, 0, 0);
+          rangeEnd.setHours(23, 59, 59, 999);
+          if (checkTime >= rangeStart.getTime() && checkTime <= rangeEnd.getTime()) {
+            return true;
+          }
         }
       }
     }
@@ -212,6 +257,7 @@ export default function ProductPage() {
       productId: product.id,
       productName: product.name,
       productImage: product.images[0],
+      variantId: selectedVariantId || undefined,
       variantSize: selectedSize || "One Size",
       dailyPrice: product.dailyPrice,
       weeklyPrice: product.weeklyPrice || undefined,
@@ -310,21 +356,18 @@ export default function ProductPage() {
                 <Link href={`/vendor/${product.vendor.businessSlug}`} className="text-xs sm:text-sm font-medium text-rose-500 uppercase tracking-wider hover:text-rose-600 transition-colors">
                   {product.vendor.businessName}
                 </Link>
-                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mt-2 tracking-tight leading-tight">{product.name}</h1>
-                <div className="flex items-center gap-3 mt-3">
-                  <div className="flex items-center gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"}`} />
-                    ))}
+                <div className="flex items-start justify-between gap-3 mt-2">
+                  <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight leading-tight">{product.name}</h1>
+                  <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1.5 flex-shrink-0">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <span className="text-sm font-semibold text-gray-900">{product.rating}</span>
+                    <span className="text-xs text-gray-400">({product.reviewCount})</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{product.rating}</span>
-                  <span className="text-sm text-gray-400">·</span>
-                  <span className="text-sm text-gray-400">{product.reviewCount} reviews</span>
                 </div>
               </div>
 
-              {/* Pricing Header */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              {/* Pricing Header + Duration */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <div className="space-y-0.5">
                   <p className="text-[9px] sm:text-[10px] font-normal text-gray-400 uppercase tracking-wider">Rental Price</p>
                   <div className="flex items-baseline">
@@ -340,54 +383,50 @@ export default function ProductPage() {
                   <p className="text-[9px] sm:text-[10px] font-normal text-gray-400 uppercase tracking-wider">Deposit</p>
                   <p className="text-base sm:text-xl font-medium text-gray-900">₹{product.depositAmount}</p>
                 </div>
+                <div>
+                  <p className="text-[9px] sm:text-[10px] font-normal text-gray-400 uppercase tracking-wider mb-1">Duration</p>
+                  <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-9 sm:h-10 w-fit">
+                    <button
+                      onClick={() => setRentalDays(Math.max(1, rentalDays - 1))}
+                      className="px-2.5 sm:px-3 h-full hover:bg-gray-50 transition-colors border-r border-gray-100"
+                    >
+                      <ChevronLeft className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-500" />
+                    </button>
+                    <span className="px-3 sm:px-4 font-medium text-gray-900 min-w-[50px] sm:min-w-[60px] text-center text-xs sm:text-sm">
+                      {rentalDays} <span className="text-[8px] sm:text-[9px] font-medium text-gray-400">DAYS</span>
+                    </span>
+                    <button
+                      onClick={() => setRentalDays(rentalDays + 1)}
+                      className="px-2.5 sm:px-3 h-full hover:bg-gray-50 transition-colors border-l border-gray-100"
+                    >
+                      <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-500" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {/* Booking Configuration Section (Reverted to Previous Layout) */}
+              {/* Booking Configuration Section */}
               <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-                {/* Duration & Size Selection Row */}
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                {/* Size Selection */}
+                {sizes.length > 0 && (
                   <div>
-                    <p className="text-[10px] sm:text-[11px] font-normal text-gray-500 uppercase tracking-widest mb-1.5 px-1">Duration</p>
-                    <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-10 sm:h-12">
-                      <button
-                        onClick={() => setRentalDays(Math.max(1, rentalDays - 1))}
-                        className="px-3 sm:px-4 h-full hover:bg-gray-50 transition-colors border-r border-gray-100"
-                      >
-                        <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
-                      </button>
-                      <span className="px-5 sm:px-8 font-medium text-gray-900 min-w-[70px] sm:min-w-[100px] text-center text-sm">
-                        {rentalDays} <span className="text-[9px] sm:text-[10px] font-medium text-gray-400 ml-0.5">DAYS</span>
-                      </span>
-                      <button
-                        onClick={() => setRentalDays(rentalDays + 1)}
-                        className="px-3 sm:px-4 h-full hover:bg-gray-50 transition-colors border-l border-gray-100"
-                      >
-                        <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
-                      </button>
+                    <p className="text-[10px] sm:text-[11px] font-normal text-gray-500 uppercase tracking-widest mb-1.5 px-1">Size</p>
+                    <div className="flex flex-wrap gap-2">
+                      {sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size === selectedSize ? "" : size)}
+                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all ${selectedSize === size
+                            ? "border-rose-500 bg-rose-50 text-rose-600"
+                            : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                            }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
                     </div>
                   </div>
-
-                  {sizes.length > 0 && (
-                    <div className="flex-1">
-                      <p className="text-[10px] sm:text-[11px] font-normal text-gray-500 uppercase tracking-widest mb-1.5 px-1">Size</p>
-                      <div className="relative">
-                        <select
-                          value={selectedSize}
-                          onChange={(e) => setSelectedSize(e.target.value)}
-                          className="w-full px-4 h-10 sm:h-12 font-medium text-gray-900 bg-white border border-gray-200 rounded-full outline-none cursor-pointer hover:border-rose-200 transition-all appearance-none shadow-sm text-sm"
-                        >
-                          <option value="">Choose Size</option>
-                          {sizes.map((size) => (
-                            <option key={size} value={size}>{size}</option>
-                          ))}
-                        </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                          <ChevronDown className="h-4 w-4" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
 
                 {/* Date Selector - Combined Pill Bar (matching cart style) */}
                 <div>
@@ -434,6 +473,8 @@ export default function ProductPage() {
                         setRentalStartDate(date);
                         setTimeout(() => setShowCalendar(false), 300);
                       }}
+                      selectedVariantId={selectedVariantId}
+                      variants={product.variants.map(v => ({ id: v.id, size: v.size, inventory: v.inventory }))}
                     />
                   </div>
                 </div>
@@ -515,7 +556,7 @@ export default function ProductPage() {
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recently Viewed</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-5">
-              {recentlyViewed.map((item) => (
+              {recentlyViewed.slice(0, 4).map((item) => (
                 <Link key={item.id} href={`/product/${item.slug || item.id}`} className="group">
                   <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-gray-50 mb-2 group-hover:shadow-lg transition-shadow duration-300">
                     <Image

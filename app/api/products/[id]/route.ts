@@ -68,6 +68,7 @@ export async function GET(
           },
         },
         select: {
+          variantId: true,
           rental: {
             select: {
               rentalStartDate: true,
@@ -101,10 +102,11 @@ export async function GET(
 
     // Removed viewCount increment to prevent row lock contention and DB crash under load
 
-    // Build booked date ranges from active rentals
-    const bookedDates = product.rentals.map((ri: { rental: { rentalStartDate: Date; rentalEndDate: Date } }) => ({
+    // Build booked date ranges from active rentals (include variant info)
+    const bookedDates = product.rentals.map((ri: { variantId: string | null; rental: { rentalStartDate: Date; rentalEndDate: Date } }) => ({
       startDate: ri.rental.rentalStartDate.toISOString(),
       endDate: ri.rental.rentalEndDate.toISOString(),
+      variantId: ri.variantId,
     }));
 
     // Build blocked date ranges
@@ -136,7 +138,7 @@ export async function GET(
 
     return NextResponse.json({ product: transformedProduct }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300',
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
       }
     });
   } catch (error) {

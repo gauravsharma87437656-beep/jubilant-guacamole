@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
     format,
     startOfMonth,
@@ -23,6 +23,13 @@ interface DateRange {
     startDate: string;
     endDate: string;
     reason?: string | null;
+    variantId?: string | null;
+}
+
+interface VariantInfo {
+    id: string;
+    size: string;
+    inventory: number;
 }
 
 interface RentalCalendarProps {
@@ -31,6 +38,10 @@ interface RentalCalendarProps {
     selectedDate: Date | null;
     rentalDays: number;
     onDateSelect: (date: Date) => void;
+    /** Currently selected variant ID */
+    selectedVariantId?: string | null;
+    /** All variants for this product — used to check inventory */
+    variants?: VariantInfo[];
 }
 
 export function RentalCalendar({
@@ -39,26 +50,24 @@ export function RentalCalendar({
     selectedDate,
     rentalDays,
     onDateSelect,
+    selectedVariantId,
+    variants = [],
 }: RentalCalendarProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const today = startOfDay(new Date());
 
-    // Compute all unavailable dates (booked + blocked)
+    // Find the selected variant's inventory
+    const selectedVariant = variants.find(v => v.id === selectedVariantId);
+    const variantInventory = selectedVariant?.inventory ?? 1;
+
+    // Compute unavailable dates: consider variant-level inventory
+    // A date is unavailable if:
+    // 1. It's blocked (applies to all variants), OR
+    // 2. The number of bookings for the selected variant on that date >= variant inventory
     const unavailableDates = useMemo(() => {
         const dates: { date: Date; reason: string }[] = [];
 
-        // Process booked dates
-        bookedDates.forEach((range) => {
-            const start = startOfDay(new Date(range.startDate));
-            const end = startOfDay(new Date(range.endDate));
-            let current = start;
-            while (!isAfter(current, end)) {
-                dates.push({ date: current, reason: "Booked" });
-                current = addDays(current, 1);
-            }
-        });
-
-        // Process blocked dates
+        // Process blocked dates (always unavailable for all variants)
         blockedDates.forEach((range) => {
             const start = startOfDay(new Date(range.startDate));
             const end = startOfDay(new Date(range.endDate));
@@ -69,8 +78,58 @@ export function RentalCalendar({
             }
         });
 
+        // For booked dates, we need to count per-variant per-day
+        // Build a map: dateKey -> { variantId -> count }
+        const bookingCountMap = new Map<string, Map<string | null, number>>();
+
+        bookedDates.forEach((range) => {
+            const start = startOfDay(new Date(range.startDate));
+            const end = startOfDay(new Date(range.endDate));
+            let current = start;
+            while (!isAfter(current, end)) {
+                const dateKey = current.toISOString();
+                if (!bookingCountMap.has(dateKey)) {
+                    bookingCountMap.set(dateKey, new Map());
+                }
+                const variantMap = bookingCountMap.get(dateKey)!;
+                const vid = range.variantId || null;
+                variantMap.set(vid, (variantMap.get(vid) || 0) + 1);
+                current = addDays(current, 1);
+            }
+        });
+
+        // Now check if selected variant is fully booked on each date
+        if (selectedVariantId) {
+            bookingCountMap.forEach((variantMap, dateKey) => {
+                const count = variantMap.get(selectedVariantId) || 0;
+                if (count >= variantInventory) {
+                    const date = new Date(dateKey);
+                    // Only add if not already in the list
+                    if (!dates.some(d => isSameDay(d.date, date))) {
+                        dates.push({ date, reason: "Booked" });
+                    }
+                }
+            });
+        } else {
+            // No variant selected: check if ALL variants of the product are fully booked
+            // If no variants exist, fall back to old behavior (any booking = unavailable)
+            if (variants.length === 0) {
+                bookedDates.forEach((range) => {
+                    const start = startOfDay(new Date(range.startDate));
+                    const end = startOfDay(new Date(range.endDate));
+                    let current = start;
+                    while (!isAfter(current, end)) {
+                        if (!dates.some(d => isSameDay(d.date, current))) {
+                            dates.push({ date: current, reason: "Booked" });
+                        }
+                        current = addDays(current, 1);
+                    }
+                });
+            }
+        }
+
         return dates;
-    }, [bookedDates, blockedDates]);
+    }, [bookedDates, blockedDates, selectedVariantId, variantInventory, variants.length]);
 
     // Check if a date is unavailable
     const isDateUnavailable = (date: Date): { unavailable: boolean; reason: string } => {
@@ -112,8 +171,8 @@ export function RentalCalendar({
         const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
         const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
-        const rows: JSX.Element[] = [];
-        let days: JSX.Element[] = [];
+        const rows: React.JSX.Element[] = [];
+        let days: React.JSX.Element[] = [];
         let day = calStart;
 
         while (!isAfter(day, calEnd)) {

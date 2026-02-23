@@ -88,43 +88,46 @@ export default function CheckoutPage() {
     setProcessing(true);
 
     try {
-      // Create rental orders for each item
-      const orderPromises = items.map(async (item) => {
-        const rentalDays = item.rentalStart && item.rentalEnd
-          ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
-          : 3;
+      const results: Response[] = [];
+      let allSuccess = true;
 
-        const orderNumber = `RS${Date.now()}${Math.random().toString(36).substring(2, 7)}`.toUpperCase();
+      for (const item of items) {
+        for (let i = 0; i < item.quantity; i++) {
+          const rentalDays = item.rentalStart && item.rentalEnd
+            ? Math.max(1, differenceInDays(new Date(item.rentalEnd), new Date(item.rentalStart)) + 1)
+            : 3;
 
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderNumber,
-            productId: item.productId,
-            variantId: item.variantId,
-            vendorId: item.vendorId,
-            rentalStart: item.rentalStart || new Date(),
-            rentalEnd: item.rentalEnd || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            rentalDays,
-            dailyPrice: item.dailyPrice,
-            depositAmount: item.depositAmount,
-            shippingAddressId: selectedAddress,
-            paymentMethod,
-          }),
-        });
+          const orderNumber = `RS${Date.now()}${Math.random().toString(36).substring(2, 7)}`.toUpperCase();
 
-        return res;
-      });
+          const res = await fetch("/api/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderNumber,
+              productId: item.productId,
+              variantId: item.variantId,
+              vendorId: item.vendorId,
+              rentalStart: item.rentalStart || new Date(),
+              rentalEnd: item.rentalEnd || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+              rentalDays,
+              dailyPrice: item.dailyPrice,
+              depositAmount: item.depositAmount,
+              shippingAddressId: selectedAddress,
+              paymentMethod,
+            }),
+          });
 
-      const results = await Promise.all(orderPromises);
-      const allSuccess = results.every((res) => res.ok);
+          results.push(res);
+          if (!res.ok) {
+            allSuccess = false;
+          }
+        }
+      }
 
       if (allSuccess) {
         clearCart();
         router.push("/checkout/success");
       } else {
-        // Get error details from failed requests
         for (const res of results) {
           if (!res.ok) {
             const errorData = await res.json();

@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     const overlappingRentals = await prisma.rentalItem.findMany({
       where: {
         productId,
-        variantId: variantId || undefined,
+        ...(variantId ? { variantId } : {}),
         status: { notIn: ["CANCELLED"] },
         rental: {
           status: { notIn: ["CANCELLED"] },
@@ -82,7 +82,17 @@ export async function POST(request: Request) {
       },
     });
 
-    if (overlappingRentals.length > 0) {
+    // Get the variant inventory to check if there's still capacity
+    let maxInventory = 1;
+    if (variantId) {
+      const variant = await prisma.productVariant.findUnique({
+        where: { id: variantId },
+        select: { inventory: true },
+      });
+      maxInventory = variant?.inventory ?? 1;
+    }
+
+    if (overlappingRentals.length >= maxInventory) {
       return NextResponse.json(
         { error: "Product is not available for the selected dates" },
         { status: 400 }
@@ -142,8 +152,8 @@ export async function POST(request: Request) {
       // Parse images from JSON field
       let productImage = "";
       try {
-        const imagesArray = typeof product.images === 'string' 
-          ? JSON.parse(product.images) 
+        const imagesArray = typeof product.images === 'string'
+          ? JSON.parse(product.images)
           : product.images;
         productImage = Array.isArray(imagesArray) ? imagesArray[0] || "" : "";
       } catch (e) {

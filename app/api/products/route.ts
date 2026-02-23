@@ -50,7 +50,9 @@ export async function GET(request: Request) {
     }
 
     if (gender) {
-      where.gender = gender.toUpperCase();
+      where.gender = {
+        in: [gender.toUpperCase(), "NONE"],
+      };
     }
 
     if (search) {

@@ -104,6 +104,12 @@ export default function AddProductPage() {
     setLoading(true);
 
     try {
+      if (variants.length === 0 || !variants.some(v => v.size)) {
+        alert("Please add at least one variant sizing with valid inventory.");
+        setLoading(false);
+        return;
+      }
+
       // Parse image URLs
       const images = imageUrls
         .map((url) => url.trim())

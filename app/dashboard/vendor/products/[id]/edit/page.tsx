@@ -151,6 +151,12 @@ export default function EditProductPage() {
         setLoading(true);
 
         try {
+            if (variants.length === 0 || !variants.some(v => v.size)) {
+                toast.error("Please add at least one variant sizing with valid inventory.");
+                setLoading(false);
+                return;
+            }
+
             const images = imageUrls
                 .map((url) => url.trim())
                 .filter((url) => url.length > 0);
