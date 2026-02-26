@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 const footerLinks = {
   company: [
     { name: "About Us", href: "/about" },
-    { name: "How Rental Works", href: "/how-it-works" },
     { name: "Vendor Onboarding", href: "/vendor/signup" },
     { name: "Contact Us", href: "/contact" },
   ],
@@ -51,8 +50,28 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Categories */}
           <div className="lg:pl-8">
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">
+              Shop Categories
+            </h3>
+            <ul className="space-y-4">
+              {footerLinks.categories.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    prefetch={false}
+                    className="text-[15px] text-gray-500 hover:text-black transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Quick Links */}
+          <div className="">
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">
               Company
             </h3>
@@ -78,26 +97,6 @@ export function Footer() {
             </h3>
             <ul className="space-y-4">
               {footerLinks.support.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    prefetch={false}
-                    className="text-[15px] text-gray-500 hover:text-black transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Categories */}
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">
-              Shop Categories
-            </h3>
-            <ul className="space-y-4">
-              {footerLinks.categories.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}

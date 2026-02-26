@@ -121,7 +121,7 @@ export default function VendorSignupPage() {
                   required
                   value={formData.businessName}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none"
                   placeholder="Your Fashion Store"
                 />
               </div>
@@ -136,7 +136,7 @@ export default function VendorSignupPage() {
                   required
                   value={formData.businessSlug}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm bg-gray-50 text-gray-600 placeholder:text-gray-400 outline-none"
                   placeholder="your-fashion-store"
                 />
               </div>
@@ -150,7 +150,7 @@ export default function VendorSignupPage() {
                   rows={4}
                   value={formData.description}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none resize-none"
                   placeholder="Tell customers about your store..."
                 />
               </div>
@@ -164,7 +164,7 @@ export default function VendorSignupPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none"
                   placeholder="+1 (555) 000-0000"
                 />
               </div>
@@ -186,7 +186,7 @@ export default function VendorSignupPage() {
                   name="bankName"
                   value={formData.bankName}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none"
                   placeholder="Chase Bank"
                 />
               </div>
@@ -200,7 +200,7 @@ export default function VendorSignupPage() {
                   name="bankAccount"
                   value={formData.bankAccount}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none"
                   placeholder="****1234"
                 />
               </div>
@@ -214,7 +214,7 @@ export default function VendorSignupPage() {
                   name="bankRouting"
                   value={formData.bankRouting}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none"
                   placeholder="021000021"
                 />
               </div>
@@ -228,7 +228,7 @@ export default function VendorSignupPage() {
                   name="paypalEmail"
                   value={formData.paypalEmail}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none"
                   placeholder="you@paypal.com"
                 />
               </div>

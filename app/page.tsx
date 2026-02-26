@@ -156,16 +156,16 @@ export default function HomePage() {
       {/* Mobile: Sticky Search Bar + Category Strip */}
       <div className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-100">
         {/* Search Bar */}
-        <div className="px-3 pt-2 pb-1.5">
-          <form onSubmit={handleMobileSearch} className="relative">
+        <div className="px-4 pt-3 pb-2">
+          <form onSubmit={handleMobileSearch} className="relative group">
             <input
               type="text"
               value={mobileSearchQuery}
               onChange={(e) => setMobileSearchQuery(e.target.value)}
-              placeholder="Search for outfits..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[14px] text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:bg-white transition-all"
+              placeholder="Search for your dream outfit..."
+              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-[15px] text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-rose-500/5 focus:border-rose-300 transition-all shadow-sm shadow-gray-100/50"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-rose-500 transition-colors" />
           </form>
         </div>
 

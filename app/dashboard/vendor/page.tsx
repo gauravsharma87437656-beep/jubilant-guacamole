@@ -96,7 +96,7 @@ export default function VendorDashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">Vendor Dashboard</h1>
           <p className="text-gray-600">Welcome back, {session?.user?.name || "Vendor"}!</p>
         </div>
-        <Link href="/dashboard/vendor/products/new">
+        <Link href="/dashboard/vendor/products/add">
           <Button className="mt-4 sm:mt-0">
             <Plus className="h-4 w-4 mr-2" />
             Add Product
