@@ -27,7 +27,7 @@ export function AdminSidebar({
                     <span className="material-symbols-outlined">hotel</span>
                 </div>
                 <div>
-                    <h1 className="font-bold text-lg leading-none text-white">Rent Square</h1>
+                    <h1 className="font-bold text-lg leading-none text-white">Rentsquire</h1>
                     <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">Admin Panel</p>
                 </div>
             </div>

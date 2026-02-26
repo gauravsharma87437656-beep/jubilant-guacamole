@@ -242,10 +242,10 @@ async function main() {
 
   // Create a demo user first (needed for vendor)
   const demoUser = await prisma.user.upsert({
-    where: { email: 'demo@rentsquare.com' },
+    where: { email: 'demo@rentsquire.com' },
     update: {},
     create: {
-      email: 'demo@rentsquare.com',
+      email: 'demo@rentsquire.com',
       name: 'Demo Vendor',
       password: '$2a$10$rQZQZQZQZQZQZQZQZQZQZ.O9Y1Z0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z', // dummy hash
       role: 'VENDOR',

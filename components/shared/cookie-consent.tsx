@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
-const COOKIE_CONSENT_KEY = "rent-square-cookie-consent";
+const COOKIE_CONSENT_KEY = "rentsquire-cookie-consent";
 
 export function CookieConsent() {
   const [showConsent, setShowConsent] = useState(false);
@@ -14,7 +14,7 @@ export function CookieConsent() {
     const consent = document.cookie
       .split('; ')
       .find(row => row.startsWith(`${COOKIE_CONSENT_KEY}=`));
-    
+
     if (!consent) {
       // Small delay to prevent flash on page load
       const timer = setTimeout(() => setShowConsent(true), 1000);
@@ -46,7 +46,7 @@ export function CookieConsent() {
   if (!showConsent) return null;
 
   return (
-    <div 
+    <div
       className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6"
       role="dialog"
       aria-labelledby="cookie-title"

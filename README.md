@@ -1,4 +1,4 @@
-# 🛍️ RentSquare — Premium Ethnic Wear Rental Platform
+# 🛍️ Rentsquire — Premium Ethnic Wear Rental Platform
 
 A full-stack rental marketplace for ethnic and traditional wear, built with **Next.js 16**, **Prisma**, **MySQL**, and **NextAuth.js**.
 
@@ -65,7 +65,7 @@ NEXTAUTH_SECRET="your-secret-key"
 RESEND_API_KEY="your-resend-api-key"
 
 # Platform
-NEXT_PUBLIC_PLATFORM_NAME="RentSquare"
+NEXT_PUBLIC_PLATFORM_NAME="Rentsquire"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
@@ -134,4 +134,4 @@ This project is private and proprietary.
 
 ---
 
-Built with ❤️ by the RentSquare Team
+Built with ❤️ by the Rentsquire Team

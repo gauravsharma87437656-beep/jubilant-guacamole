@@ -27,14 +27,14 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Rent Square - Rent Fashion for Any Occasion",
-    template: "%s | Rent Square",
+    default: "Rentsquire - Rent Fashion for Any Occasion",
+    template: "%s | Rentsquire",
   },
   description: "Rent designer dresses, shoes, and accessories for weddings, parties, and special events. Save money with our rental service.",
   keywords: ["fashion rental", "dress rental", "wedding dress", "party dress", "designer rental"],
-  authors: [{ name: "Rent Square" }],
-  creator: "Rent Square",
-  publisher: "Rent Square",
+  authors: [{ name: "Rentsquire" }],
+  creator: "Rentsquire",
+  publisher: "Rentsquire",
   robots: {
     index: true,
     follow: true,
@@ -49,13 +49,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'Rent Square',
-    title: 'Rent Square - Rent Fashion for Any Occasion',
+    siteName: 'Rentsquire',
+    title: 'Rentsquire - Rent Fashion for Any Occasion',
     description: 'Rent designer dresses, shoes, and accessories for weddings, parties, and special events.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Rent Square - Rent Fashion for Any Occasion',
+    title: 'Rentsquire - Rent Fashion for Any Occasion',
     description: 'Rent designer dresses, shoes, and accessories for weddings, parties, and special events.',
   },
 };

@@ -206,7 +206,7 @@ export const useCartStore = create<CartState>()(
 
         // Get all carts from storage
         if (typeof window !== "undefined") {
-          const storageKey = "rent-square-cart";
+          const storageKey = "rentsquire-cart";
           const stored = localStorage.getItem(storageKey);
 
           if (stored) {
@@ -247,7 +247,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: "rent-square-cart",
+      name: "rentsquire-cart",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         items: state.items,

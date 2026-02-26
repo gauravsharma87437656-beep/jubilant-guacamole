@@ -135,7 +135,7 @@ export function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-1.5">
               <Layers className="h-5 w-5 md:h-6 md:w-6 text-black" />
-              <span className="text-lg md:text-2xl font-bold text-gray-900">Rent Square</span>
+              <span className="text-lg md:text-2xl font-bold text-gray-900">Rentsquire</span>
             </Link>
           </div>
 
@@ -359,7 +359,7 @@ export function Navbar() {
               <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100">
                 <Link href="/" className="flex items-center gap-1.5" onClick={() => setMobileMenuOpen(false)}>
                   <Layers className="h-5 w-5 text-black" />
-                  <span className="text-lg font-bold text-gray-900">Rent Square</span>
+                  <span className="text-lg font-bold text-gray-900">Rentsquire</span>
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-gray-500">
                   <X className="h-5 w-5" />
