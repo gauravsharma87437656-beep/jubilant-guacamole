@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils";
 export function InstagramBanner() {
     const pathname = usePathname();
     const isMobileHiddenPage = pathname === "/cart" || pathname?.startsWith("/profile") || pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
+    const isLegalPage = pathname?.startsWith("/legal") || pathname === "/faq";
+
+    if (isLegalPage) return null;
 
     return (
         <div className={cn("w-full bg-black", isMobileHiddenPage && "hidden md:block")}>
